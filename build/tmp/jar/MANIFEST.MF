@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: ecstatic
+Specification-Vendor: angryalchemist
+Specification-Version: 1
+Implementation-Title: ecstatic
+Implementation-Vendor: angryalchemist
+Implementation-Version: 1.3.0
+Implementation-Timestamp: 2026-08-16T13:16:20-0400
+

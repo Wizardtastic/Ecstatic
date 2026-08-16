@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: Ecstatic
+Specification-Vendor: angryalchemist
+Specification-Version: 1.3.0
+Implementation-Title: forge
+Implementation-Version: 1.3.0
+Implementation-Vendor: angryalchemist
+Built-On-Minecraft: 1.20.1
+
