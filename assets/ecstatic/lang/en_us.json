@@ -1,0 +1,9 @@
+{
+    "key.categories.ecstatic": "Ecstatic",
+    "key.ecstatic.cycle_vertex_format": "Cycle Vertex Format Override (Debug)",
+    "key.ecstatic.cycle_forced_lod": "Cycle Forced LOD Level",
+    "key.ecstatic.toggle_reference_quad": "Toggle Debug Reference Quad",
+    "key.ecstatic.compare_sample": "Compare LOD Sample vs Real Terrain",
+    "key.ecstatic.open_biome_style": "Open Biome Style Editor",
+    "key.ecstatic.open_settings": "Open Ecstatic Settings"
+}
