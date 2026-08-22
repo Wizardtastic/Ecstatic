@@ -15,8 +15,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Registry;
@@ -50,7 +52,7 @@ public final class RegionLodCoordinator {
     private final Set<RegionCoord> bootstrapInFlight = ConcurrentHashMap.newKeySet();
     private final ConcurrentLinkedQueue<RegionCoord> bootstrapReady = new ConcurrentLinkedQueue<>();
     private final PriorityBlockingQueue<RegionLodCoordinator.SampleTask> pendingTasks = new PriorityBlockingQueue<>();
-    private final List<RegionLodCoordinator.Worker> workers = new ArrayList<>();
+    private final List<RegionLodCoordinator.Worker> workers = new CopyOnWriteArrayList<>();
     private int nextWorkerIndex;
     private volatile boolean shuttingDown;
     private boolean hasLastScanPos;
@@ -71,6 +73,7 @@ public final class RegionLodCoordinator {
         int lod5Width,
         int hysteresisChunks,
         int workerThreadCount
+        
     ) throws IOException {
         this.generator = generator;
         this.randomState = randomState;
@@ -101,13 +104,19 @@ public final class RegionLodCoordinator {
         while (!this.shuttingDown && !self.retire) {
             RegionLodCoordinator.SampleTask task;
             try {
-                task = this.pendingTasks.poll(250L, TimeUnit.MILLISECONDS);
+                task = this.pendingTasks.poll(WORKER_IDLE_POLL_MILLIS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
             }
 
             if (task != null) {
+            
+                if (!task.isValid().getAsBoolean()) {
+               
+                    continue;
+                }
+
                 try {
                     task.action().run();
                 } catch (Throwable t) {
@@ -126,7 +135,7 @@ public final class RegionLodCoordinator {
         return worker;
     }
 
-    private void adjustWorkerThreadCount(int desiredCount) {
+    private synchronized void adjustWorkerThreadCount(int desiredCount) {
         int target = Math.max(1, desiredCount);
 
         while (this.workers.size() < target) {
@@ -134,10 +143,11 @@ public final class RegionLodCoordinator {
         }
 
         while (this.workers.size() > target) {
-            this.workers.remove(this.workers.size() - 1).retire = true;
+            Worker worker = this.workers.remove(this.workers.size() - 1);
+            worker.retire = true;
         }
     }
-
+    
     public LodRegionFile fileForLevel(int level) {
         return this.filesByLevel.get(level);
     }
@@ -221,23 +231,31 @@ public final class RegionLodCoordinator {
                         targetLevel = Math.max(1, ringConfig.classify(farthestDistanceChunks));
                     }
 
-                    if (targetLevel != -1 && targetLevel != previousLevel && !this.inFlight.contains(region)) {
-                        LodRegionFile targetFile = this.filesByLevel.get(targetLevel);
-                        if (targetFile.isFullySampled(region)) {
-                            this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, targetLevel));
-                        } else {
-                            if (targetLevel <= 3 && !this.bootstrapInFlight.contains(region) && !this.bootstrapFile.isFullySampled(region)) {
-                                this.bootstrapInFlight.add(region);
-                                this.pendingTasks.put(new RegionLodCoordinator.SampleTask(-1, distanceChunks, () -> this.sampleBootstrapRegion(region)));
-                            }
-
-                            this.inFlight.add(region);
-                            int finalTargetLevel = targetLevel;
-                            this.pendingTasks
-                                .put(new RegionLodCoordinator.SampleTask(finalTargetLevel, distanceChunks, () -> this.sampleRegion(region, finalTargetLevel)));
-                        }
-                    }
+        if (targetLevel != -1 && targetLevel != previousLevel && !this.inFlight.contains(region)) {
+            LodRegionFile targetFile = this.filesByLevel.get(targetLevel);
+            if (targetFile.isFullySampled(region)) {
+                this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, targetLevel));
+            } else {
+                if (targetLevel <= 3 && !this.bootstrapInFlight.contains(region) && !this.bootstrapFile.isFullySampled(region)) {
+                    this.bootstrapInFlight.add(region);
+                    this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
+                        BOOTSTRAP_PRIORITY, 
+                        distanceChunks, 
+                        region, 
+                        () -> this.bootstrapInFlight.contains(region),
+                        () -> this.sampleBootstrapRegion(region)
+                    ));
                 }
+
+                this.inFlight.add(region);
+                int finalTargetLevel = targetLevel;
+                this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
+                    finalTargetLevel, 
+                    distanceChunks, 
+                    region, 
+                    () -> this.inFlight.contains(region), 
+                    () -> this.sampleRegion(region, finalTargetLevel)
+                ));
             }
         }
     }
@@ -262,7 +280,13 @@ public final class RegionLodCoordinator {
     }
 
     public void submitBackgroundTask(int level, double distanceChunks, Runnable action) {
-        this.pendingTasks.put(new RegionLodCoordinator.SampleTask(level, distanceChunks, action));
+        this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
+            level, 
+            distanceChunks, 
+            null, 
+            () -> true, 
+            action
+        ));
     }
 
     public List<RegionLodCoordinator.RegionReadyResult> drainReady() {
@@ -338,7 +362,7 @@ public final class RegionLodCoordinator {
             this.sampleColumns(region, this.filesByLevel.get(level), LodLevel.sampleSpacingBlocks(level));
             this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, level));
         } catch (Exception e) {
-            Constants.LOG.error("Ecstatic region coordinator failed to sample region ({}, {}) at LOD{}", new Object[]{region.x(), region.z(), level, e});
+            Constants.LOG.error("Ecstatic failed to sample region ({}, {}) at LOD{}",region.x(), region.z(), level, e);
         } finally {
             this.inFlight.remove(region);
         }
@@ -350,7 +374,7 @@ public final class RegionLodCoordinator {
             this.bootstrapReady.add(region);
         } catch (Exception e) {
             Constants.LOG
-                .error("Ecstatic region coordinator failed to sample bootstrap placeholder for region ({}, {})", new Object[]{region.x(), region.z(), e});
+                .error("Ecstatic region coordinator failed to sample bootstrap placeholder for region ({}, {})", region.x(), region.z(), e);
         } finally {
             this.bootstrapInFlight.remove(region);
         }
@@ -360,7 +384,7 @@ public final class RegionLodCoordinator {
         file.writeColumn(region, localX, localZ, sample.height(), sample.biomeRawId(), sample.colorRgb(), sample.hasTrees());
     }
 
-    public void shutdown() {
+public synchronized void shutdown() {
         this.shuttingDown = true;
 
         for (RegionLodCoordinator.Worker worker : this.workers) {
@@ -393,7 +417,14 @@ public final class RegionLodCoordinator {
     public record RegionReadyResult(RegionCoord region, int level) {
     }
 
-    private record SampleTask(int level, double distanceChunks, Runnable action) implements Comparable<RegionLodCoordinator.SampleTask> {
+    private record SampleTask(
+        int level, 
+        double distanceChunks, 
+        RegionCoord region, 
+        BooleanSupplier isValid, 
+        Runnable action
+    ) implements Comparable<RegionLodCoordinator.SampleTask> {
+        @Override
         public int compareTo(RegionLodCoordinator.SampleTask other) {
             int cmp = Integer.compare(this.level, other.level);
             return cmp != 0 ? cmp : Double.compare(this.distanceChunks, other.distanceChunks);
