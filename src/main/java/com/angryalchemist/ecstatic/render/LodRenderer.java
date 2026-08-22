@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -497,17 +496,42 @@ public final class LodRenderer {
     }
 
     private static void refreshLevelMeshes(int level, LodRegionFile file, LodRegionMesh.FadeParams fade, Registry<Biome> biomeRegistry) {
-        if (file != null) {
-            Map<RegionCoord, LodRegionMesh> meshes = meshesByLevel.get(level);
-            if (meshes != null && !meshes.isEmpty()) {
-                meshes.replaceAll((region, oldMesh) -> {
-                    LodRegionMesh newMesh = LodRegionMesh.build(file, region, fade, biomeRegistry);
-                    oldMesh.close();
-                    return newMesh;
-                });
+        if (file == null) return;
+        
+        Map<RegionCoord, LodRegionMesh> meshes = meshesByLevel.get(level);
+         if (meshes == null || meshes.isEmpty()) return;
+
+        Map<RegionCoord, LodRegionMesh> updatedMeshes = new HashMap<>();
+        
+        for (Entry<RegionCoord, LodRegionMesh> entry : meshes.entrySet()) {
+                RegionCoord region = entry.getKey();
+                LodRegionMesh oldMesh = entry.getValue();
+                LodRegionMesh newMesh = null;
+
+                try { 
+                    // try and build + upload a new mesh
+                    newMesh = LodRegionMesh.build(file, region, fade, biomeRegistry);
+
+                    // if successful, close the old mesh and store the new one
+                    if (oldMesh != null) {
+                        oldMesh.close();
+                    }
+                    updatedMeshes.put(region, newMesh);
+                } catch (Exception e) {
+                    Constants.LOG.error("Failed to rebuild mesh for region ({}, {}) at LOD{}", region.x(), region.z(), level, e);
+
+                    if (newMesh != null) {
+                        try {
+                            newMesh.close();
+                        } catch (Exception closeEx) {
+                        // suppress nested cleanup exception
+                        }
+                    }
+                    updatedMeshes.put(region, oldMesh);
+                }
             }
+            meshes.putAll(updatedMeshes);
         }
-    }
 
     private static void unload() {
         for (Map<RegionCoord, LodRegionMesh> meshes : meshesByLevel.values()) {
