@@ -40,7 +40,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public final class LodRenderer {
-    private static final int BOOTSTRAP_LEVEL = 0;
     private static final int[] LOD_LEVELS = new int[]{0, 1, 2, 3, 4, 5};
     private static final int ALPHA_FADE_WIDTH_CHUNKS = 12;
     static final int EDGE_SAFETY_MARGIN_CHUNKS = 4;
