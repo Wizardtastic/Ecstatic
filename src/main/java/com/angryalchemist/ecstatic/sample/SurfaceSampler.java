@@ -41,9 +41,6 @@ public final class SurfaceSampler {
     private static final int FLOATING_OUTLIER_THRESHOLD_BLOCKS = 24; // maximum height diff between neighboring points before being treated as a floating block/blob
     private static final int GRASS_COLOR_BLEND_RADIUS = 2; // radius to blend terrain color
     private static final Map<Biome, Boolean> hasTreesCache = new ConcurrentHashMap<>(); //caches biome tree data. computed once per biome instance. 
-    private static final Set<ResourceLocation> BADLANDS_BIOMES = Set.of(
-        Biomes.BADLANDS.location(), Biomes.ERODED_BADLANDS.location(), Biomes.WOODED_BADLANDS.location()
-    ); // badlands biomes, unfortunately must be hardcoded 
     private static final Method SURFACE_SYSTEM_GET_BAND = resolveGetBandMethod(); // vanilla's terracotta band gen
 
     private SurfaceSampler() {
@@ -67,13 +64,12 @@ public final class SurfaceSampler {
                     }
                 }
             }
-            method.trySetAccessible(true);
-            return method;
-        } catch (ReflectiveOperationException e) {
-            Constants.LOG
-                .warn("Ecstatic: could not resolve SurfaceSystem#getBand via reflection; badlands terrain will fall back to plain sampled grass color", e);
-            return null;
+        } catch (Exception e) {
+            Constants.LOG.warn("Ecstatic: Exception while scanning SurfaceSystem methods", e);
         }
+    
+        Constants.LOG.warn("Ecstatic: Could not resolve SurfaceSystem#getBand via reflection; badlands terrain will fall back to plain sampled grass color");
+        return null;
     }
 
     public static SurfaceSample sample(ServerLevel level, int blockX, int blockZ) {
