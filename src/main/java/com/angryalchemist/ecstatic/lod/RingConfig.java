@@ -3,20 +3,28 @@ package com.angryalchemist.ecstatic.lod;
 public final class RingConfig {
     private final int[] outerBoundaryChunks = new int[6];
     public final int hysteresisChunks;
-    public static final int RING_START_MARGIN_CHUNKS = 12;
+    
+    public static final int RING_START_MARGIN_CHUNKS = 12; 
+
+    private static final int DEFAULT_LOD1_WIDTH = 16;
+    private static final int DEFAULT_LOD2_WIDTH = 32;
+    private static final int DEFAULT_LOD3_WIDTH = 64;
+    private static final int DEFAULT_LOD4_WIDTH = 128;
+    private static final int DEFAULT_LOD5_WIDTH = 1024;
+    private static final int DEFAULT_HYSTERESIS_CHUNKS = 4;
 
     public RingConfig(int renderDistanceChunks, int lod1Width, int lod2Width, int lod3Width, int lod4Width, int lod5Width, int hysteresisChunks) {
-        this.outerBoundaryChunks[0] = renderDistanceChunks;
-        this.outerBoundaryChunks[1] = this.outerBoundaryChunks[0] + lod1Width;
-        this.outerBoundaryChunks[2] = this.outerBoundaryChunks[1] + lod2Width;
-        this.outerBoundaryChunks[3] = this.outerBoundaryChunks[2] + lod3Width;
-        this.outerBoundaryChunks[4] = this.outerBoundaryChunks[3] + lod4Width;
-        this.outerBoundaryChunks[5] = this.outerBoundaryChunks[4] + lod5Width;
+        this.outerBoundaryChunks[0] = Math.max(0, renderDistanceChunks);
+        this.outerBoundaryChunks[1] = this.outerBoundaryChunks[0] + Math.max(0, lod1Width); // sanitized inputs
+        this.outerBoundaryChunks[2] = this.outerBoundaryChunks[1] + Math.max(0, lod2Width);
+        this.outerBoundaryChunks[3] = this.outerBoundaryChunks[2] + Math.max(0, lod3Width);
+        this.outerBoundaryChunks[4] = this.outerBoundaryChunks[3] + Math.max(0, lod4Width);
+        this.outerBoundaryChunks[5] = this.outerBoundaryChunks[4] + Math.max(0, lod5Width);
         this.hysteresisChunks = hysteresisChunks;
     }
 
     public static RingConfig defaults(int renderDistanceChunks) {
-        return new RingConfig(renderDistanceChunks, 16, 32, 64, 128, 1024, 4);
+        return new RingConfig(renderDistanceChunks, DEFAULT_LOD1_WIDTH, DEFAULT_LOD2_WIDTH, DEFAULT_LOD3_WIDTH, DEFAULT_LOD4_WIDTH, DEFAULT_LOD5_WIDTH, DEFAULT_HYSTERESIS_CHUNKS); // ring sizes and the hysteresis band around them respectively at 100% scale
     }
 
     public static RingConfig scaled(
@@ -37,8 +45,8 @@ public final class RingConfig {
         return Math.max(1, Math.round(baseWidth * widthScale));
     }
 
-    public static int ring1StartChunks(int clientRenderDistanceChunks) {
-        return Math.max(2, clientRenderDistanceChunks - 12);
+    public static int ring1StartChunks(int clientRenderDistanceChunks) { // where to start rendering the first LOD
+        return Math.max(2, clientRenderDistanceChunks - RING_START_MARGIN_CHUNKS); 
     }
 
     public int outerBoundary(int level) {
@@ -66,6 +74,6 @@ public final class RingConfig {
             }
         }
 
-        return -1;
+        return 5; // renders the highest LOD in edge cases 
     }
 }
