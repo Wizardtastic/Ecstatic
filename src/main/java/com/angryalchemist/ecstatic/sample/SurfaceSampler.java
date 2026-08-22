@@ -4,19 +4,16 @@ import com.angryalchemist.ecstatic.Constants;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -196,7 +193,7 @@ public final class SurfaceSampler {
         while (y >= bottom) {
             if (isSolid(finalDensity, blockX, y, blockZ)) {
                 int candidate = binaryRefine(finalDensity, blockX, blockZ, prevY, y) + 1;
-                if (expectedHeightHint == Integer.MIN_VALUE || Math.abs(candidate - expectedHeightHint) <= FLOATING_OUTLIER_THRESHOLD_BLOCKS) {
+                if (expectedHeightHint == NO_HEIGHT_HINT || Math.abs(candidate - expectedHeightHint) <= FLOATING_OUTLIER_THRESHOLD_BLOCKS) {
                     return candidate;
                 }
 
