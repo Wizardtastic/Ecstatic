@@ -214,7 +214,7 @@ public final class SurfaceSampler {
 
     private static int binaryRefine(DensityFunction finalDensity, int blockX, int blockZ, int highNonSolidY, int lowSolidY) {
         while (highNonSolidY - lowSolidY > 1) {
-            int mid = (highNonSolidY + lowSolidY) / 2;
+            int mid = (highNonSolidY + lowSolidY) >>> 1;
             if (isSolid(finalDensity, blockX, mid, blockZ)) {
                 lowSolidY = mid;
             } else {
