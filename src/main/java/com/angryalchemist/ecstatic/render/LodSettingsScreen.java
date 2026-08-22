@@ -45,7 +45,7 @@ public final class LodSettingsScreen extends Screen {
         this.maxScroll = Math.max(0, contentHeight - viewportHeight);
         this.scrollAmount = Mth.clamp(this.scrollAmount, 0.0, this.maxScroll);
         int y = viewportTop - (int)this.scrollAmount;
-        Checkbox frustumCulling = new Checkbox(centerX - 130, y, 260, 20, Component.literal("Horizon (frustum) culling"), this.config.frustumCullingEnabled()) {
+        Checkbox frustumCulling = new Checkbox(centerX - 130, y, 260, 20, Component.literal("Horizon culling"), this.config.frustumCullingEnabled()) {
             public void onPress() {
                 super.onPress();
                 LodSettingsScreen.this.config.setFrustumCullingEnabled(this.selected());
@@ -55,7 +55,7 @@ public final class LodSettingsScreen extends Screen {
         this.addRenderableWidget(frustumCulling);
         y += 32;
         Checkbox oceanPlane = new Checkbox(
-            centerX - 130, y, 260, 20, Component.literal("LOD water plane (animated distant ocean)"), this.config.oceanPlaneEnabled()
+            centerX - 130, y, 260, 20, Component.literal("LOD water plane"), this.config.oceanPlaneEnabled()
         ) {
             public void onPress() {
                 super.onPress();
@@ -77,7 +77,7 @@ public final class LodSettingsScreen extends Screen {
         this.addRenderableWidget(opaqueWater);
         y += 32;
         CycleButton<Integer> lod1Detail = CycleButton.<Integer>builder(
-                step -> Component.literal(step == 2 ? "LOD1 detail: 2-block steps (coarser, cheaper)" : "LOD1 detail: 1-block steps (finest, default)")
+                step -> Component.literal(step == 2 ? "2-block steps (cheapest)" : "1-block steps (may cause lag)")
             )
             .withValues(new Integer[]{1, 2})
             .withInitialValue(this.config.lod1SubStepBlocks())
@@ -91,11 +91,11 @@ public final class LodSettingsScreen extends Screen {
             centerX - 130, y, 260, 20, Component.literal("Render distance: " + renderDistanceInitialPercent + "%"), renderDistanceInitialValue
         ) {
             protected void updateMessage() {
-                this.setMessage(Component.literal("Render distance: " + LodSettingsScreen.percentFromValue(this.value, 25, 200, 5) + "%"));
+                this.setMessage(Component.literal("Render distance: " + LodSettingsScreen.percentFromValue(this.value, 40, 200, 5) + "%"));
             }
 
             protected void applyValue() {
-                LodSettingsScreen.this.config.setLodRenderDistanceScale(LodSettingsScreen.percentFromValue(this.value, 25, 200, 5) / 100.0F);
+                LodSettingsScreen.this.config.setLodRenderDistanceScale(LodSettingsScreen.percentFromValue(this.value, 40, 200, 5) / 100.0F);
             }
         };
         renderDistance.visible = y >= viewportTop && y + 20 <= viewportBottom;
