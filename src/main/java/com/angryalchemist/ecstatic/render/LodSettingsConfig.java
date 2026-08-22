@@ -242,19 +242,21 @@ public final class LodSettingsConfig {
         }
     }
 
-    private void load() {
-        Path file = this.configFile();
-        if (Files.exists(file)) {
-            try (Reader reader = Files.newBufferedReader(file)) {
-                LodSettingsConfig.Data loaded = (LodSettingsConfig.Data)GSON.fromJson(reader, LodSettingsConfig.Data.class);
-                if (loaded != null) {
-                    this.data = loaded;
-                }
+    public synchronized void save() {
+        try {
+            Path dir = this.configDir();
+            Files.createDirectories(dir);
 
-                LodDebugState.setEnabled(this.data.debugToolsEnabled);
-            } catch (IOException e) {
-                Constants.LOG.error("Failed to load LOD settings config", e);
+            Path target = this.configFile();
+            Path tempTarget = dir.resolve("settings.json.tmp");
+
+            try (Writer writer = Files.newBufferedWriter(tempTarget)) {
+                GSON.toJson(this.data, writer);
             }
+
+            Files.move(tempTarget, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            Constants.LOG.error("Failed to save LOD settings config", e);
         }
     }
 
