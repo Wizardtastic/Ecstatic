@@ -106,13 +106,13 @@ public final class SurfaceSampler {
         );
         Biome biome = (Biome)biomeHolder.value();
         int biomeRawId = biomeRegistry.getId(biome);
-        ResourceLocation biomeKey = biomeRegistry.getKey(biome);
-        int colorRgb = biomeKey != null && BADLANDS_BIOMES.contains(biomeKey)
+        int colorRgb = biomeHolder.is(BiomeTags.IS_BADLANDS)
             ? badlandsColor(randomState, biome, blockX, height, blockZ)
             : averagedGrassColor(biome, blockX, blockZ);
         boolean hasTrees = hasTreesCache.computeIfAbsent(biome, SurfaceSampler::biomeHasTrees);
         return new SurfaceSample(height, biomeRawId, colorRgb, hasTrees);
     }
+    
     /**
      * Checks if a biome places a {@link Feature#TREE} in the vegetation step.
      * Works for modded biomes too since it doesn't pull from a hardcoded list.
