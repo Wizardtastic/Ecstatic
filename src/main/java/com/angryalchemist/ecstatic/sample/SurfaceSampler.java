@@ -48,7 +48,9 @@ public final class SurfaceSampler {
      * by the big Moj 
      * 
      * Resloved one time, then cached. IF it fails for some reason, it reverts back to the default grass color 
-     * (not pretty but it's something) rather than just throwing
+     * (not pretty but it's something) rather than just throwing.
+     * 
+     * I can't seem to get it to work for some reason
      */
     private static Method resolveGetBandMethod() {
         try {
