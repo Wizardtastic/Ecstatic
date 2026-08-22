@@ -50,7 +50,7 @@ How long does it take Ecstatic to generate LOD terrain?
 
 **Answer:**
 
-   On a new world, it takes about 5 divided by the number of threads you allocated for all the LOD terrain to load in at 100% view distance. Expect about
+   On a new world, it takes about 5 minutes divided by the number of threads you allocated for all the LOD terrain to load in at 100% view distance. Expect about
 
    - ~1 - 4 minutes on lower end machines
    - ~50 seconds on mid range machines 
@@ -95,4 +95,6 @@ Made in Canada
 
 Please tell me VIA https://github.com/alchemyfour/ecstatic-issues/issues if there are any features you'd like to see or any bugs you find, any feedback is very appreciated this early on in development. As for now, I'm only doing Forge/Fabric 1.20.1 just for testing purposes, but if there's a specific version you would like me to do a build for, leave an issue in the issue tracker repo and I'll try to make a build for you!
 
-The full source code will be uploaded on Saturday, for now this is just the decompiled code which I will be cleaning up for fun. 
+Due to the previous source being a mess, this repo is now the location that all future versions will be built and developed from. You're welcome everybody, I guess it's open source now. Feel free to leave a PR.
+
+
