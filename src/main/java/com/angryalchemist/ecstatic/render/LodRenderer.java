@@ -302,7 +302,7 @@ public final class LodRenderer {
                             LodRegionMesh.RecordedRegionMesh recorded = LodRegionMesh.buildGeometry(file, region, fade, biomeRegistry);
                             pendingCoordinatorBuilds.add(new LodRenderer.GeometryBuildResult(region, 0, recorded));
                         } catch (Exception e) {
-                            Constants.LOG.error("Ecstatic failed to build bootstrap geometry for region ({}, {})", new Object[]{region.x(), region.z(), e});
+                            Constants.LOG.error("Ecstatic failed to build bootstrap geometry for region ({}, {})", region.x(), region.z(), e);
                         }
                     });
                 }
@@ -338,8 +338,7 @@ public final class LodRenderer {
                                     LodRegionMesh.RecordedRegionMesh recorded = LodRegionMesh.buildGeometry(file, region, fade, biomeRegistry);
                                     pendingCoordinatorBuilds.add(new LodRenderer.GeometryBuildResult(region, level, recorded));
                                 } catch (Exception e) {
-                                    Constants.LOG
-                                        .error("Ecstatic failed to build geometry for region ({}, {}) at LOD{}", new Object[]{region.x(), region.z(), level, e});
+                                    Constants.LOG.error("Ecstatic failed to build bootstrap geometry for region ({}, {})", region.x(), region.z(), e);
                                 }
                             }
                         );
@@ -435,11 +434,10 @@ public final class LodRenderer {
                             } catch (Exception e) {
                                 Constants.LOG
                                     .error(
-                                        "Ecstatic failed to build fade-refresh geometry for region ({}, {}) at LOD{}",
-                                        new Object[]{region.x(), region.z(), level, e}
+                                        "Ecstatic failed to build fade-refresh geometry for region ({}, {}) at LOD{}",{region.x(), region.z(), level, e}
                                     );
                             }
-                        };
+                        }; 
                         if (coordinator != null) {
                             coordinator.submitBackgroundTask(level, distanceChunks, buildTask);
                         } else {
