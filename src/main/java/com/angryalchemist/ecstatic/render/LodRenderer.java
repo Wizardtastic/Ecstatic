@@ -63,7 +63,7 @@ public final class LodRenderer {
     private static final ConcurrentLinkedQueue<LodRenderer.GeometryBuildResult> pendingCoordinatorBuilds = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<LodRenderer.GeometryBuildResult> pendingFadeBuilds = new ConcurrentLinkedQueue<>();
     private static Vec3 lastFadeRefreshOrigin;
-    private static final Set<LodRenderer.PendingMeshRefresh> pendingFadeRefreshes = new LinkedHashSet<>();
+    private static final Set<LodRenderer.PendingMeshRefresh> pendingFadeRefreshes = ConcurrentHashMap.newKeySet();
 
     private static long frameBudgetNanos(long normalBudgetNanos) {
         return !IrisCompat.isShaderPackActive() ? normalBudgetNanos : normalBudgetNanos / 3L;
