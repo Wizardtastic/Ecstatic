@@ -16,7 +16,7 @@ public final class RingConfig {
     }
 
     public static RingConfig defaults(int renderDistanceChunks) {
-        return new RingConfig(renderDistanceChunks, 16, 32, 64, 128, 256, 4);
+        return new RingConfig(renderDistanceChunks, 16, 32, 64, 128, 1024, 4);
     }
 
     public static RingConfig scaled(
