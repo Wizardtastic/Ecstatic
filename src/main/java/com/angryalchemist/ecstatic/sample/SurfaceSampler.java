@@ -173,39 +173,43 @@ public final class SurfaceSampler {
         int bSum = 0;
         int count = 0;
 
-        for (int dz = -2; dz <= 2; dz++) {
-            for (int dx = -2; dx <= 2; dx++) {
+        for (int dz = -GRASS_COLOR_BLEND_RADIUS; dz <= GRASS_COLOR_BLEND_RADIUS; dz++) {
+            for (int dx = -GRASS_COLOR_BLEND_RADIUS; dx <= GRASS_COLOR_BLEND_RADIUS; dx++) {
                 int sampleColor = biome.getGrassColor(blockX + dx, blockZ + dz);
-                rSum += sampleColor >> 16 & 0xFF;
-                gSum += sampleColor >> 8 & 0xFF;
+                rSum += (sampleColor >> 16) & 0xFF;
+                gSum += (sampleColor >> 8) & 0xFF;
                 bSum += sampleColor & 0xFF;
                 count++;
             }
         }
+        
+        int rAvg = rSum / count;
+        int gAvg = gSum / count;
+        int bAvg = bSum / count;
 
-        return rSum / count << 16 | gSum / count << 8 | bSum / count;
+        return (rAvg << 16) | (gAvg << 8) | bAvg;
     }
 
     private static int findSurfaceHeight(DensityFunction finalDensity, LevelHeightAccessor heightAccessor, int blockX, int blockZ, int expectedHeightHint) {
         int top = heightAccessor.getMaxBuildHeight() - 1;
         int bottom = heightAccessor.getMinBuildHeight();
         int prevY = top;
-        int y = top - 8;
+        int y = top - MARCH_STEP;
         int fallback = bottom;
 
         while (y >= bottom) {
             if (isSolid(finalDensity, blockX, y, blockZ)) {
                 int candidate = binaryRefine(finalDensity, blockX, blockZ, prevY, y) + 1;
-                if (expectedHeightHint == Integer.MIN_VALUE || Math.abs(candidate - expectedHeightHint) <= 24) {
+                if (expectedHeightHint == Integer.MIN_VALUE || Math.abs(candidate - expectedHeightHint) <= FLOATING_OUTLIER_THRESHOLD_BLOCKS) {
                     return candidate;
                 }
 
                 fallback = candidate;
                 prevY = candidate - 1;
-                y = prevY - 8;
+                y = prevY - MARCH_STEP;
             } else {
                 prevY = y;
-                y -= 8;
+                y -= MARCH_STEP;
             }
         }
 
