@@ -1,11 +1,3 @@
-/**
- * Uses Minecraft's density function used in chunk generation in a vertical march + a binary refine to find the surface height
- * highly version specific, density function literally doesn't exist pre 1.18 
- * returns a SurfaceSample object, contains a height, BiomeRawID, a color, and a contains-trees bool
- *
- * Could potentially be made faster by basing the march off of neighbor hint, low priority
- */
-
 package com.angryalchemist.ecstatic.sample;
 
 import com.angryalchemist.ecstatic.Constants;
@@ -36,7 +28,13 @@ import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
-
+/**
+ * Uses Minecraft's density function used in chunk generation in a vertical march + a binary refine to find the surface height
+ * highly version specific, density function literally doesn't exist pre 1.18, keep any divergence contained here
+ * returns a SurfaceSample object, contains a height, BiomeRawID, a color, and a contains-trees bool
+ *
+ * Could potentially be made faster by basing the march off of neighbor hint, low priority
+ */
 public final class SurfaceSampler { 
     private static final int MARCH_STEP = 8; 
     public static final int NO_HEIGHT_HINT = Integer.MIN_VALUE; // no neighboring point to check against for floating points
@@ -45,20 +43,27 @@ public final class SurfaceSampler {
     private static final Map<Biome, Boolean> hasTreesCache = new ConcurrentHashMap<>(); //caches biome tree data. computed once per biome instance. 
     private static final Set<ResourceLocation> BADLANDS_BIOMES = Set.of(
         Biomes.BADLANDS.location(), Biomes.ERODED_BADLANDS.location(), Biomes.WOODED_BADLANDS.location()
-    ); // badlands biomes, unfortunately must be hardcoded
+    ); // badlands biomes, unfortunately must be hardcoded 
     private static final Method SURFACE_SYSTEM_GET_BAND = resolveGetBandMethod(); // vanilla's terracotta band gen
 
     private SurfaceSampler() {
     }
-
+    /**
+     * Minecraft's {@code SurfaceRules} is not public, so reflection is the only (Sorta) future proof way of 
+     * calling the real thing opposed to rederiving the code myself, which is vulnerable to any future tweak
+     * by the big Moj 
+     * 
+     * Resloved one time, then cached. IF it fails for some reason, it reverts back to the default grass color 
+     * (not pretty but it's something) rather than just throwing
+     */
     private static Method resolveGetBandMethod() {
         try {
             Method method = SurfaceSystem.class.getDeclaredMethod("getBand", int.class, int.class, int.class);
-            method.setAccessible(true);
+            method.trySetAccessible(true);
             return method;
         } catch (ReflectiveOperationException e) {
             Constants.LOG
-                .warn("Ecstatic: could not resolve SurfaceSystem#getBand via reflection - badlands terrain will fall back to plain sampled grass color", e);
+                .warn("Ecstatic: could not resolve SurfaceSystem#getBand via reflection; badlands terrain will fall back to plain sampled grass color", e);
             return null;
         }
     }
