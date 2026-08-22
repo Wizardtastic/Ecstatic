@@ -58,7 +58,15 @@ public final class SurfaceSampler {
      */
     private static Method resolveGetBandMethod() {
         try {
-            Method method = SurfaceSystem.class.getDeclaredMethod("getBand", int.class, int.class, int.class);
+            for (Method method : SurfaceSystem.class.getDeclaredMethods()) {
+                if (method.getReturnType() == BlockState.class) {
+                    Class<?>[] params = method.getParameterTypes();
+                    if (params.length == 3 && params[0] == int.class && params[1] == int.class && params[2] == int.class) {
+                        method.trySetAccessible();
+                        return method;
+                    }
+                }
+            }
             method.trySetAccessible(true);
             return method;
         } catch (ReflectiveOperationException e) {
@@ -105,7 +113,10 @@ public final class SurfaceSampler {
         boolean hasTrees = hasTreesCache.computeIfAbsent(biome, SurfaceSampler::biomeHasTrees);
         return new SurfaceSample(height, biomeRawId, colorRgb, hasTrees);
     }
-
+    /**
+     * Checks if a biome places a {@link Feature#TREE} in the vegetation step.
+     * Works for modded biomes too since it doesn't pull from a hardcoded list.
+     */
     private static boolean biomeHasTrees(Biome biome) {
         List<HolderSet<PlacedFeature>> steps = biome.getGenerationSettings().features();
         int stepIndex = Decoration.VEGETAL_DECORATION.ordinal();
