@@ -57,7 +57,7 @@ final class LodLightingScreen extends Screen {
         y = this.addSlider(centerX, y, viewportTop, viewportBottom, "Desaturation", this.config.saturationReduction(), this.config::setSaturationReduction);
         y = this.addSlider(centerX, y, viewportTop, viewportBottom, "Sun relief", this.config.sunReliefStrength(), this.config::setSunReliefStrength);
         this.addSlider(
-            centerX, y, viewportTop, viewportBottom, "Light temperature (50% neutral)", this.config.lightTemperature(), this.config::setLightTemperature
+            centerX, y, viewportTop, viewportBottom, "Light temperature)", this.config.lightTemperature(), this.config::setLightTemperature
         );
         int footerY = this.height - 44 + 20;
         this.addRenderableWidget(Button.builder(Component.literal("Save"), b -> this.onSave()).bounds(centerX - 105, footerY, 100, 20).build());
