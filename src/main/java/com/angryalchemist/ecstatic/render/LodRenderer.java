@@ -434,7 +434,7 @@ public final class LodRenderer {
                             } catch (Exception e) {
                                 Constants.LOG
                                     .error(
-                                        "Ecstatic failed to build fade-refresh geometry for region ({}, {}) at LOD{}",{region.x(), region.z(), level, e}
+                                        "Ecstatic failed to build fade-refresh geometry for region ({}, {}) at LOD{}",region.x(), region.z(), level, e
                                     );
                             }
                         }; 
