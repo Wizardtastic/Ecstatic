@@ -3,7 +3,6 @@
 <img width="850" height="277" alt="description_49efa71f-514e-4676-8e70-eaf97a7dd002" src="https://github.com/user-attachments/assets/dac205f4-599a-4af3-89ec-fee67dc82ce1" />
 
 Ecstatic is an LOD mod designed to be as efficient and as close to vanilla performance as possible, while allowing you to hit render distances of over 256 chunks
-(This is an uploaded version of the contents of the mod, with permission given by the original mod creator)
 
  
 
