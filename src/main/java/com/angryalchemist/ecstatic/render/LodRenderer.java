@@ -45,8 +45,8 @@ public final class LodRenderer {
     private static final int ALPHA_FADE_WIDTH_CHUNKS = 12;
     static final int EDGE_SAFETY_MARGIN_CHUNKS = 4;
     private static final int FADE_REFRESH_THRESHOLD_CHUNKS = 2;
-    private static final long FADE_REFRESH_TIME_BUDGET_NANOS = TimeUnit.MICROSECONDS.toNanos(1000L);
-    private static final long COORDINATOR_BUILD_TIME_BUDGET_NANOS = TimeUnit.MICROSECONDS.toNanos(1500L);
+    private static final long FADE_REFRESH_TIME_BUDGET_NANOS = TimeUnit.MICROSECONDS.toNanos(3000L);
+    private static final long COORDINATOR_BUILD_TIME_BUDGET_NANOS = TimeUnit.MICROSECONDS.toNanos(4500L);
     private static final int SHADER_ACTIVE_BUDGET_DIVISOR = 3;
     private static final float SKY_DARKEN_MIN = 0.2F;
     private static final float SKY_DARKEN_MAX = 1.0F;
