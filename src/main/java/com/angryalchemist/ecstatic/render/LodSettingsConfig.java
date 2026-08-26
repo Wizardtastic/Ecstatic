@@ -281,12 +281,12 @@ public final class LodSettingsConfig {
         boolean backfaceCullingEnabled = false;
         boolean debugToolsEnabled = false;
         float nightBrightness = 0.26F;
-        float dayBrightness = 0.77F;
+        float dayBrightness = 1.0F;
         float slopeShadingFloor = 0.64F;
-        float nearSlopeShadingFloor = 0.25F;
-        float structureSlopeShadingFloor = 0.72F;
-        float saturationReduction = 0.3F;
-        float sunReliefStrength = 0.21F;
+        float nearSlopeShadingFloor = 1.0F;
+        float structureSlopeShadingFloor = 0.15F;
+        float saturationReduction = 0.25F;
+        float sunReliefStrength = 0.02F;
         float lightTemperature = 0.84F;
         int tintGrass = 16777215;
         int tintDirt = 13092807;
@@ -297,7 +297,7 @@ public final class LodSettingsConfig {
         int tintTerracotta = 16777215;
         int lod1SubStepBlocks = 2;
         float lodRenderDistanceScale = 0.9F;
-        int workerThreadCount = Math.max(1, Math.round(Runtime.getRuntime().availableProcessors() * 0.8F));
+        int workerThreadCount = Math.max(1, Math.round(Runtime.getRuntime().availableProcessors() * 0.7F));
         float fogFalloffScale = 1.25F;
         float fogIntensity = 1.0F;
     }

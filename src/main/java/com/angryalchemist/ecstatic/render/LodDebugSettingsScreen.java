@@ -23,7 +23,7 @@ final class LodDebugSettingsScreen extends Screen {
     private int maxScroll;
 
     LodDebugSettingsScreen(Screen parent) {
-        super(Component.literal("Ecstatic Settings - Debug"));
+        super(Component.literal("Debug"));
         this.parent = parent;
     }
 
@@ -71,7 +71,7 @@ final class LodDebugSettingsScreen extends Screen {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
-        guiGraphics.drawCenteredString(this.font, "Lit vertex format is currently broken - leave unchecked", this.width / 2, 32, 8421504);
+        guiGraphics.drawCenteredString(this.font, "These settings are potentially game breaking! Leaving them unchecked is highly advised", this.width / 2, 32, 8421504);
         if (this.maxScroll > 0) {
             int centerX = this.width / 2;
             int trackX = centerX + 130 + 10;
