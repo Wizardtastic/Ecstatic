@@ -167,7 +167,7 @@ public final class RegionLodCoordinator {
         return result;
     }
 
-    public void tick(double playerChunkX, double playerChunkZ) {
+    public void tick(double playerChunkX, double playerChunkZ, double playerY) {
         this.adjustWorkerThreadCount(LodSettingsConfig.get().workerThreadCount());
         if (this.hasLastScanPos) {
             double dx = playerChunkX - this.lastScanChunkX;
@@ -190,6 +190,8 @@ public final class RegionLodCoordinator {
         this.lastScanChunkX = playerChunkX;
         this.lastScanChunkZ = playerChunkZ;
         int clientRenderDistanceChunks = Minecraft.getInstance().options.getEffectiveRenderDistance();
+        float vanillaFarPlaneBlocks = clientRenderDistanceChunks * 16.0F * 4.0F;
+        boolean forceNearLod = playerY > vanillaFarPlaneBlocks * 0.6;
         int ring1StartChunks = RingConfig.ring1StartChunks(clientRenderDistanceChunks);
         RingConfig ringConfig = RingConfig.scaled(
                 ring1StartChunks,
@@ -224,7 +226,7 @@ public final class RegionLodCoordinator {
                 int targetLevel = previousLevel == -1 ? ringConfig.classify(distanceChunks) : ringConfig.resolveLevel(distanceChunks, previousLevel);
                 if (targetLevel == 0) {
                     double farthestDistanceChunks = region.farthestDistanceChunksTo(playerChunkX, playerChunkZ);
-                    if (farthestDistanceChunks <= ringConfig.outerBoundary(0)) {
+                    if (!forceNearLod && farthestDistanceChunks <= ringConfig.outerBoundary(0)) {
                         if (previous != null && !this.inFlight.contains(region) && regionHasRealTerrain(region)) {
                             this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, -1));
                         }

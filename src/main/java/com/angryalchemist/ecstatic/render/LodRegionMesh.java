@@ -566,10 +566,10 @@ public final class LodRegionMesh implements AutoCloseable {
                 int color10 = frozen10 ? iceColor : waterColorAt(waterColor, c10);
                 int color01 = frozen01 ? iceColor : waterColorAt(waterColor, c01);
                 int color11 = frozen11 ? iceColor : waterColorAt(waterColor, c11);
-                int a00 = fadedWaterAlpha(fade, x0, z0, frozen00 ? 0.92F : baseAlpha);
-                int a10 = fadedWaterAlpha(fade, x1, z0, frozen10 ? 0.92F : baseAlpha);
-                int a01 = fadedWaterAlpha(fade, x0, z1, frozen01 ? 0.92F : baseAlpha);
-                int a11 = fadedWaterAlpha(fade, x1, z1, frozen11 ? 0.92F : baseAlpha);
+                int a00 = fadedWaterAlpha(fade, x0, 63.0F, z0, frozen00 ? 0.92F : baseAlpha);
+                int a10 = fadedWaterAlpha(fade, x1, 63.0F, z0, frozen10 ? 0.92F : baseAlpha);
+                int a01 = fadedWaterAlpha(fade, x0, 63.0F, z1, frozen01 ? 0.92F : baseAlpha);
+                int a11 = fadedWaterAlpha(fade, x1, 63.0F, z1, frozen11 ? 0.92F : baseAlpha);
                 if (a00 != 0 || a10 != 0 || a01 != 0 || a11 != 0) {
                     if (!opaqueWaterEnabled) {
                         emitSeafloorTile(sink, litFormat, sprite, fade, waterColor, x0, z0, x1, z1, c00, c10, c01, c11, vertexCount);
@@ -666,10 +666,10 @@ public final class LodRegionMesh implements AutoCloseable {
         int color10 = waterColorAt(waterColor, c10);
         int color01 = waterColorAt(waterColor, c01);
         int color11 = waterColorAt(waterColor, c11);
-        int a00 = fadedWaterAlpha(fade, x0, z0, 1.0F);
-        int a10 = fadedWaterAlpha(fade, x1, z0, 1.0F);
-        int a01 = fadedWaterAlpha(fade, x0, z1, 1.0F);
-        int a11 = fadedWaterAlpha(fade, x1, z1, 1.0F);
+        int a00 = fadedWaterAlpha(fade, x0, 63.0F, z0, 1.0F);
+        int a10 = fadedWaterAlpha(fade, x1, 63.0F, z0, 1.0F);
+        int a01 = fadedWaterAlpha(fade, x0, 63.0F, z1, 1.0F);
+        int a11 = fadedWaterAlpha(fade, x1, 63.0F, z1, 1.0F);
         if (a00 != 0 || a10 != 0 || a01 != 0 || a11 != 0) {
             float u = (sprite.u0() + sprite.u1()) * 0.5F;
             float v = (sprite.v0() + sprite.v1()) * 0.5F;
@@ -715,8 +715,8 @@ public final class LodRegionMesh implements AutoCloseable {
         return biome != null && biome.coldEnoughToSnow(new BlockPos(blockX, 62, blockZ));
     }
 
-    private static int fadedWaterAlpha(LodRegionMesh.FadeParams fade, float worldX, float worldZ, float baseAlpha) {
-        return Math.round(baseAlpha * fade.alphaAt(worldX, worldZ));
+    private static int fadedWaterAlpha(LodRegionMesh.FadeParams fade, float worldX, float worldY, float worldZ, float baseAlpha) {
+        return Math.round(baseAlpha * fade.alphaAt(worldX, worldY, worldZ));
     }
 
     private static boolean allSubmerged(HeightmapColumn... columns) {
@@ -758,7 +758,7 @@ public final class LodRegionMesh implements AutoCloseable {
                     float cz = region.originBlockZ() + lz * spacing;
                     long structureChunk = ChunkPos.asLong(Math.floorDiv((int)cx, 16), Math.floorDiv((int)cz, 16));
                     if (!LodStructureIslands.renderedChunks().contains(structureChunk)) {
-                        boolean columnFullyOpaque = fade.alphaAt(cx, cz) == 255;
+                        boolean columnFullyOpaque = fade.alphaAt(cx, column.height(), cz) == 255;
                         if (columnFullyOpaque == opaquePass) {
                             HeightmapColumn west = columnAt(regionFile, region, lx - 1, lz, samplesPerAxis);
                             HeightmapColumn east = columnAt(regionFile, region, lx + 1, lz, samplesPerAxis);
@@ -1506,7 +1506,7 @@ public final class LodRegionMesh implements AutoCloseable {
         int[] partVertexCount = new int[]{0};
 
         for (LodRegionMesh.TreePlacement placement : placements) {
-            if (placement.style().group == group && fade.visibleAt(placement.blockX(), placement.blockZ())) {
+            if (placement.style().group == group && fade.visibleAt(placement.blockX(), placement.groundY(), placement.blockZ())) {
                 if (part == LodRegionMesh.TreePart.TRUNK) {
                     emitTexturedTrunk(sink, placement, tintColor, 255, partVertexCount);
                 } else {
@@ -1535,7 +1535,7 @@ public final class LodRegionMesh implements AutoCloseable {
         int[] partVertexCount = new int[]{0};
 
         for (LodRegionMesh.TreePlacement placement : placements) {
-            if (fade.visibleAt(placement.blockX(), placement.blockZ())) {
+            if (fade.visibleAt(placement.blockX(), placement.groundY(), placement.blockZ())) {
                 TreeStyle.Group group = placement.style().group;
                 if (config.trunkTextureId(group) == null) {
                     emitBlockTrunk(sink, placement, config.trunkTint(group), 255, partVertexCount);
@@ -1589,10 +1589,10 @@ public final class LodRegionMesh implements AutoCloseable {
         boolean litFormat,
         int[] vertexCount
     ) {
-        int alpha00 = fade.alphaAt(x0, z0);
-        int alpha10 = fade.alphaAt(x1, z0);
-        int alpha11 = fade.alphaAt(x1, z1);
-        int alpha01 = fade.alphaAt(x0, z1);
+        int alpha00 = fade.alphaAt(x0, ySW, z0);
+        int alpha10 = fade.alphaAt(x1, ySE, z0);
+        int alpha11 = fade.alphaAt(x1, yNE, z1);
+        int alpha01 = fade.alphaAt(x0, yNW, z1);
         int baseColor = applyLightTemperature(sprite != null && !sprite.tinted() ? 16777215 : tintColor);
         int color00 = shade(baseColor, shadeSW);
         int color10 = shade(baseColor, shadeSE);
@@ -1653,10 +1653,10 @@ public final class LodRegionMesh implements AutoCloseable {
         boolean litFormat,
         int[] vertexCount
     ) {
-        int alpha00 = fade.alphaAt(x0, z0);
-        int alpha10 = fade.alphaAt(x1, z0);
-        int alpha11 = fade.alphaAt(x1, z1);
-        int alpha01 = fade.alphaAt(x0, z1);
+        int alpha00 = fade.alphaAt(x0, y, z0);
+        int alpha10 = fade.alphaAt(x1, y, z0);
+        int alpha11 = fade.alphaAt(x1, y, z1);
+        int alpha01 = fade.alphaAt(x0, y, z1);
         int color = shade(applyLightTemperature(sprite.tinted() ? tintColor : 16777215), shadeFactor);
         if (litFormat) {
             sink.litTexturedVertex(x0, y, z0, sprite.u0(), sprite.v0(), color, alpha00, 0.0F, -1.0F, 0.0F);
@@ -1696,8 +1696,8 @@ public final class LodRegionMesh implements AutoCloseable {
         boolean litFormat,
         int[] vertexCount
     ) {
-        int alpha0 = fade.alphaAt(x0, z0);
-        int alpha1 = fade.alphaAt(x1, z1);
+        int alpha0 = fade.alphaAt(x0, yTop0, z0);
+        int alpha1 = fade.alphaAt(x1, yTop1, z1);
         int color = shade(applyLightTemperature(sprite != null && !sprite.tinted() ? 16777215 : tintColor), shadeFactor * wallSunRelief(nx, nz));
         boolean forward = (z1 - z0) * nx - (x1 - x0) * nz < 0.0F;
         if (litFormat) {
@@ -1829,10 +1829,10 @@ public final class LodRegionMesh implements AutoCloseable {
                 float z0 = r00.originBlockZ() + lz00 * spacing;
                 float x1 = r10.originBlockX() + lx10 * spacing;
                 float z1 = r01.originBlockZ() + lz01 * spacing;
-                int alpha00 = fade.alphaAt(x0, z0);
-                int alpha10 = fade.alphaAt(x1, z0);
-                int alpha01 = fade.alphaAt(x0, z1);
-                int alpha11 = fade.alphaAt(x1, z1);
+                int alpha00 = fade.alphaAt(x0, c00.height(), z0);
+                int alpha10 = fade.alphaAt(x1, c10.height(), z0);
+                int alpha01 = fade.alphaAt(x0, c01.height(), z1);
+                int alpha11 = fade.alphaAt(x1, c11.height(), z1);
                 boolean cellFullyOpaque = alpha00 == 255 && alpha10 == 255 && alpha01 == 255 && alpha11 == 255;
                 if (cellFullyOpaque == opaquePass) {
                     float h00 = c00.height();
@@ -2517,19 +2517,21 @@ public final class LodRegionMesh implements AutoCloseable {
     private record EdgeColumn(int height, float ySW, float ySE, float yNE, float yNW, float skirtBottom, int tintColor, SurfaceMaterial.Sprite sideSprite) {
     }
 
-    public record FadeParams(int spawnBlockX, int spawnBlockZ, float fadeStartBlocks, float fadeEndBlocks) {
-        int alphaAt(float worldX, float worldZ) {
+    public record FadeParams(int spawnBlockX, int spawnBlockZ, int playerY, float fadeStartBlocks, float fadeEndBlocks) {
+        int alphaAt(float worldX, float worldY, float worldZ) {
             float dx = worldX - this.spawnBlockX;
+            float dy = worldY - this.playerY;
             float dz = worldZ - this.spawnBlockZ;
-            float distanceBlocks = (float)Math.sqrt(dx * dx + dz * dz);
+            float distanceBlocks = (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
             float t = LodRegionMesh.smoothstep(this.fadeStartBlocks, this.fadeEndBlocks, distanceBlocks);
             return Math.round(t * 255.0F);
         }
 
-        boolean visibleAt(float worldX, float worldZ) {
+        boolean visibleAt(float worldX, float worldY, float worldZ) {
             float dx = worldX - this.spawnBlockX;
+            float dy = worldY - this.playerY;
             float dz = worldZ - this.spawnBlockZ;
-            float distanceBlocks = (float)Math.sqrt(dx * dx + dz * dz);
+            float distanceBlocks = (float)Math.sqrt(dx * dx + dy * dy + dz * dz);
             return distanceBlocks >= this.fadeEndBlocks;
         }
     }
