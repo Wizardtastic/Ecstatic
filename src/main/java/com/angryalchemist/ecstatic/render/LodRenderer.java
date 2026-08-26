@@ -199,10 +199,12 @@ public final class LodRenderer {
                 LodRegionMesh.renderWaterLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
                 RenderSystem.setShaderFogEnd(fogEndBlocks);
                 IrisCompat.endPhase(translucentPhaseToken);
-                RenderSystem.setShaderFogStart(savedFogStart);
-                RenderSystem.setShaderFogEnd(savedFogEnd);
                 int lodCloudRadiusBlocks = ringConfigForFog.outerBoundary(5) * 16;
                 LodCloudExtension.render(rotationOnlyMatrix, lodProjectionMatrix, clientLevel, camera, partialTick, lodCloudRadiusBlocks);
+                RenderSystem.setShaderFogStart(savedFogStart);
+                RenderSystem.setShaderFogEnd(savedFogEnd);
+                LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
