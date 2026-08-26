@@ -189,6 +189,10 @@ public final class LodRegionFile implements AutoCloseable {
     public synchronized void writeColumn(RegionCoord region, int localX, int localZ, int height, int biomeRawId, int colorRgb, boolean hasTrees) throws IOException {
         long recordOffset = this.offsetFor(region);
         long columnOffset = recordOffset + (localZ * this.samplesPerAxis + localX) * 8L;
+        if (this.buffer.getShort((int) columnOffset) != UNWRITTEN_HEIGHT) {
+            return; // already sampled
+        }
+
         int packedBiomeRawId = biomeRawId & 32767 | (hasTrees ? 32768 : 0);
         this.buffer.putShort((int)columnOffset, (short)height);
         this.buffer.putShort((int)columnOffset + 2, (short)packedBiomeRawId);
