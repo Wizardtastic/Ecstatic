@@ -52,7 +52,7 @@ public final class ForgeClientRenderEvents {
                     if (!isFoggy) {
                         float farPlaneDistance = event.getFarPlaneDistance();
                         event.setNearPlaneDistance(farPlaneDistance * 100.0F);
-                        event.setFarPlaneDistance(farPlaneDistance * 100.0F * 2.0F);
+                        event.setFarPlaneDistance(farPlaneDistance * 100.0F * 12.0F);
                         event.setFogShape(FogShape.CYLINDER); // so that going up really high doesn't leave a visual hole in the world
                         event.setCanceled(true);
                     }
