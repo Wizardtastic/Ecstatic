@@ -1,3 +1,10 @@
+/**
+ * This file is unused!!!
+ *
+ * It used to render a large bedrock plane, however it caused performance issues since I did a sub par implementation. Will
+ * potentially fully implement later!
+ */
+
 package com.angryalchemist.ecstatic.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
