@@ -137,8 +137,8 @@ public final class LodSettingsScreen extends Screen {
             .bounds(centerX - 130, y, CHECKBOX_WIDTH, WIDGET_HEIGHT)
             .build();
         lightingButton.visible = y >= viewportTop && y + WIDGET_HEIGHT <= viewportBottom;
-        //this.addRenderableWidget(lightingButton); // technically a debug menu, average user should never need to access this
-        //y += 32;
+        this.addRenderableWidget(lightingButton); // technically a debug menu, average user should never need to access this
+        y += 32;
         Button debugButton = Button.builder(Component.literal("Debug Settings..."), b -> Minecraft.getInstance().setScreen(new LodDebugSettingsScreen(this)))
             .bounds(centerX - 130, y, CHECKBOX_WIDTH, WIDGET_HEIGHT)
             .build();

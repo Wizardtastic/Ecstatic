@@ -10,6 +10,7 @@ import com.angryalchemist.ecstatic.storage.LodRegionFile;
 import com.angryalchemist.ecstatic.storage.LodStoragePaths;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -113,7 +115,7 @@ public final class LodRenderer {
                 applyVanillaCameraBob(modelViewMatrix, partialTick);
                 modelViewMatrix.mul(trueRotationMatrix(camera));
                 Matrix4f rotationOnlyMatrix = new Matrix4f(modelViewMatrix);
-                modelViewMatrix.translate(-((float)cameraPos.x), -((float)cameraPos.y), -((float)cameraPos.z));
+                modelViewMatrix.translate(-((float) cameraPos.x), -((float) cameraPos.y), -((float) cameraPos.z));
                 float dayFraction = clamp01((clientLevel.getSkyDarken(partialTick) - 0.2F) / 0.8F);
                 float night = LodSettingsConfig.get().nightBrightness();
                 float day = LodSettingsConfig.get().dayBrightness();
@@ -221,7 +223,7 @@ public final class LodRenderer {
 
     private static void applyVanillaCameraBob(Matrix4f modelViewMatrix, float partialTick) {
         applyHurtBob(modelViewMatrix, partialTick);
-        if ((Boolean)Minecraft.getInstance().options.bobView().get()) {
+        if (Minecraft.getInstance().options.bobView().get()) {
             applyViewBob(modelViewMatrix, partialTick);
         }
     }
@@ -264,10 +266,9 @@ public final class LodRenderer {
         int renderDistanceChunks = Minecraft.getInstance().options.getEffectiveRenderDistance();
         float farPlaneBlocks = renderDistanceChunks * 16.0F * 4.0F;
         Constants.LOG
-            .info(
-                "Ecstatic renderer: client render distance={} chunks, graphics mode={}, vanilla far clip plane ~= {} blocks (LOD rings beyond this are frustum-clipped)",
-                new Object[]{renderDistanceChunks, Minecraft.getInstance().options.graphicsMode().get(), farPlaneBlocks}
-            );
+                .info(
+                        "Ecstatic renderer: client render distance={} chunks, graphics mode={}, vanilla far clip plane ~= {} blocks (LOD rings beyond this are frustum-clipped)",
+                        renderDistanceChunks, Minecraft.getInstance().options.graphicsMode().get(), farPlaneBlocks);
     }
 
     private static float extendedFarPlaneBlocks(int clientRenderDistanceChunks) {
@@ -281,7 +282,7 @@ public final class LodRenderer {
         int ring1StartChunks = RingConfig.ring1StartChunks(clientRenderDistanceChunks);
         float fadeStartBlocks = ring1StartChunks * 16.0F;
         float fadeEndBlocks = Math.min(fadeStartBlocks + 192.0F, Math.max(fadeStartBlocks + 16.0F, (clientRenderDistanceChunks - 4) * 16.0F));
-        return new LodRegionMesh.FadeParams((int)origin.x, (int)origin.z, fadeStartBlocks, fadeEndBlocks);
+        return new LodRegionMesh.FadeParams((int) origin.x, (int) origin.z, fadeStartBlocks, fadeEndBlocks);
     }
 
     private static void tickBootstrap(Vec3 cameraPos, Registry<Biome> biomeRegistry) {
@@ -331,16 +332,16 @@ public final class LodRenderer {
                         LodRegionFile file = coordinator.fileForLevel(level);
                         double distanceChunks = region.distanceChunksTo(playerChunkX, playerChunkZ);
                         coordinator.submitBackgroundTask(
-                            level,
-                            distanceChunks,
-                            () -> {
-                                try {
-                                    LodRegionMesh.RecordedRegionMesh recorded = LodRegionMesh.buildGeometry(file, region, fade, biomeRegistry);
-                                    pendingCoordinatorBuilds.add(new LodRenderer.GeometryBuildResult(region, level, recorded));
-                                } catch (Exception e) {
-                                    Constants.LOG.error("Ecstatic failed to build bootstrap geometry for region ({}, {})", region.x(), region.z(), e);
+                                level,
+                                distanceChunks,
+                                () -> {
+                                    try {
+                                        LodRegionMesh.RecordedRegionMesh recorded = LodRegionMesh.buildGeometry(file, region, fade, biomeRegistry);
+                                        pendingCoordinatorBuilds.add(new LodRenderer.GeometryBuildResult(region, level, recorded));
+                                    } catch (Exception e) {
+                                        Constants.LOG.error("Ecstatic failed to build bootstrap geometry for region ({}, {})", region.x(), region.z(), e);
+                                    }
                                 }
-                            }
                         );
                     }
                 }
@@ -433,11 +434,11 @@ public final class LodRenderer {
                                 pendingFadeBuilds.add(new LodRenderer.GeometryBuildResult(region, level, recorded));
                             } catch (Exception e) {
                                 Constants.LOG
-                                    .error(
-                                        "Ecstatic failed to build fade-refresh geometry for region ({}, {}) at LOD{}",region.x(), region.z(), level, e
-                                    );
+                                        .error(
+                                                "Ecstatic failed to build fade-refresh geometry for region ({}, {}) at LOD{}", region.x(), region.z(), level, e
+                                        );
                             }
-                        }; 
+                        };
                         if (coordinator != null) {
                             coordinator.submitBackgroundTask(level, distanceChunks, buildTask);
                         } else {
@@ -494,41 +495,41 @@ public final class LodRenderer {
 
     private static void refreshLevelMeshes(int level, LodRegionFile file, LodRegionMesh.FadeParams fade, Registry<Biome> biomeRegistry) {
         if (file == null) return;
-        
+
         Map<RegionCoord, LodRegionMesh> meshes = meshesByLevel.get(level);
-         if (meshes == null || meshes.isEmpty()) return;
+        if (meshes == null || meshes.isEmpty()) return;
 
         Map<RegionCoord, LodRegionMesh> updatedMeshes = new HashMap<>();
-        
+
         for (Entry<RegionCoord, LodRegionMesh> entry : meshes.entrySet()) {
-                RegionCoord region = entry.getKey();
-                LodRegionMesh oldMesh = entry.getValue();
-                LodRegionMesh newMesh = null;
+            RegionCoord region = entry.getKey();
+            LodRegionMesh oldMesh = entry.getValue();
+            LodRegionMesh newMesh = null;
 
-                try { 
-                    // try and build + upload a new mesh
-                    newMesh = LodRegionMesh.build(file, region, fade, biomeRegistry);
+            try {
+                // try and build + upload a new mesh
+                newMesh = LodRegionMesh.build(file, region, fade, biomeRegistry);
 
-                    // if successful, close the old mesh and store the new one
-                    if (oldMesh != null) {
-                        oldMesh.close();
-                    }
-                    updatedMeshes.put(region, newMesh);
-                } catch (Exception e) {
-                    Constants.LOG.error("Failed to rebuild mesh for region ({}, {}) at LOD{}", region.x(), region.z(), level, e);
-
-                    if (newMesh != null) {
-                        try {
-                            newMesh.close();
-                        } catch (Exception closeEx) {
-                        // suppress nested cleanup exception
-                        }
-                    }
-                    updatedMeshes.put(region, oldMesh);
+                // if successful, close the old mesh and store the new one
+                if (oldMesh != null) {
+                    oldMesh.close();
                 }
+                updatedMeshes.put(region, newMesh);
+            } catch (Exception e) {
+                Constants.LOG.error("Failed to rebuild mesh for region ({}, {}) at LOD{}", region.x(), region.z(), level, e);
+
+                if (newMesh != null) {
+                    try {
+                        newMesh.close();
+                    } catch (Exception closeEx) {
+                        // suppress nested cleanup exception
+                    }
+                }
+                updatedMeshes.put(region, oldMesh);
             }
-            meshes.putAll(updatedMeshes);
         }
+        meshes.putAll(updatedMeshes);
+    }
 
     private static void unload() {
         for (Map<RegionCoord, LodRegionMesh> meshes : meshesByLevel.values()) {
