@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -49,7 +50,7 @@ public final class LodSettingsScreen extends Screen {
         double renderDistanceInitialValue = valueFromPercent(Math.round(this.config.lodRenderDistanceScale() * 100.0F), 25, 200);
         int renderDistanceInitialPercent = percentFromValue(renderDistanceInitialValue, 25, 200, 5);
         AbstractSliderButton renderDistance = new AbstractSliderButton(
-            centerX - 130, y, 260, 20, Component.literal("Render distance: " + renderDistanceInitialPercent + "%, going beyond 115% may cause lag"), renderDistanceInitialValue
+            centerX - 130, y, 260, 20, Component.literal("Render distance: " + renderDistanceInitialPercent + "%"), renderDistanceInitialValue
         ) {
             protected void updateMessage() {
                 this.setMessage(Component.literal("Render distance: " + LodSettingsScreen.percentFromValue(this.value, 40, 200, 5) + "%"));
@@ -61,6 +62,16 @@ public final class LodSettingsScreen extends Screen {
         };
         renderDistance.visible = y >= viewportTop && y + 20 <= viewportBottom;
         this.addRenderableWidget(renderDistance);
+        y += 32;
+        StringWidget warningWidget = new StringWidget(
+                this.width,
+                20,
+                Component.literal("Going above 100% render distance may cause lag"),
+                this.font
+        );
+        warningWidget.setY(y);
+        warningWidget.visible = y >= viewportTop && y + 10 <= viewportBottom;
+        this.addRenderableWidget(warningWidget);
         y += 32;
         final int maxThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
         double workerThreadsInitialValue = this.threadsValueFromCount(this.config.workerThreadCount(), maxThreads);
@@ -85,6 +96,16 @@ public final class LodSettingsScreen extends Screen {
         };
         workerThreads.visible = y >= viewportTop && y + 20 <= viewportBottom;
         this.addRenderableWidget(workerThreads);
+        y += 32;
+        StringWidget warningWidget2 = new StringWidget(
+                this.width,
+                20,
+                Component.literal("Going above 75% of your cores WILL cause lag"),
+                this.font
+        );
+        warningWidget2.setY(y);
+        warningWidget2.visible = y >= viewportTop && y + 10 <= viewportBottom;
+        this.addRenderableWidget(warningWidget2);
         y += 32;
         double fogFalloffInitialValue = valueFromPercent(Math.round(this.config.fogFalloffScale() * 100.0F), 25, 300);
         int fogFalloffInitialPercent = percentFromValue(fogFalloffInitialValue, 25, 300, 5);
