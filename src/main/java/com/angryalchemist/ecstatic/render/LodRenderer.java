@@ -274,7 +274,7 @@ public final class LodRenderer {
     private static float extendedFarPlaneBlocks(int clientRenderDistanceChunks) {
         RingConfig ringConfig = Ecstatic.currentRingConfig(clientRenderDistanceChunks);
         float ringFarBlocks = (ringConfig.outerBoundary(5) + ringConfig.hysteresisChunks) * 16.0F;
-        return Math.max(ringFarBlocks, 4096.0F) * 1.05F;
+        return Math.max(ringFarBlocks, 16000.0F) * 1.05F;
     }
 
     private static LodRegionMesh.FadeParams fadeParamsAt(Vec3 origin) {
