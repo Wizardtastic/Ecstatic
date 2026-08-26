@@ -282,7 +282,7 @@ public final class LodRenderer {
         int ring1StartChunks = RingConfig.ring1StartChunks(clientRenderDistanceChunks);
         float fadeStartBlocks = ring1StartChunks * 16.0F;
         float fadeEndBlocks = Math.min(fadeStartBlocks + 192.0F, Math.max(fadeStartBlocks + 16.0F, (clientRenderDistanceChunks - 4) * 16.0F));
-        return new LodRegionMesh.FadeParams((int) origin.x, (int) origin.z, fadeStartBlocks, fadeEndBlocks);
+        return new LodRegionMesh.FadeParams((int) origin.x, (int) origin.z, (int) origin.y, fadeStartBlocks, fadeEndBlocks);
     }
 
     private static void tickBootstrap(Vec3 cameraPos, Registry<Biome> biomeRegistry) {
@@ -316,7 +316,7 @@ public final class LodRenderer {
         if (coordinator != null) {
             double playerChunkX = cameraPos.x / 16.0;
             double playerChunkZ = cameraPos.z / 16.0;
-            coordinator.tick(playerChunkX, playerChunkZ);
+            coordinator.tick(playerChunkX, playerChunkZ, cameraPos.y);
             List<RegionLodCoordinator.RegionReadyResult> readyResults = coordinator.drainReady();
             if (!readyResults.isEmpty()) {
                 LodRegionMesh.FadeParams fade = fadeParamsAt(cameraPos);

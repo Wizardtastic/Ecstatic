@@ -45,7 +45,7 @@ final class LodStructureIslands {
     private static final int MAX_CHUNKS_PER_STRUCTURE = 64;
     private static final int SCAN_TOP_Y = 192;
     private static final int Y_MARGIN_BLOCKS = 4;
-    private static final LodRegionMesh.FadeParams NO_FADE = new LodRegionMesh.FadeParams(-1073741824, -1073741824, 0.0F, 1.0F);
+    private static final LodRegionMesh.FadeParams NO_FADE = new LodRegionMesh.FadeParams(-1073741824, -1073741824, -1073741824, 0.0F, 1.0F);
     private static volatile VertexBuffer buffer;
     private static int builtChunkX = Integer.MIN_VALUE;
     private static int builtChunkZ = Integer.MIN_VALUE;
