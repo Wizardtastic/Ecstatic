@@ -178,20 +178,20 @@ final class LodStructureIslands {
 
             int structureChunkCount = chunksToRender.size();
             renderedChunks = Set.copyOf(chunksToRender);
-            Constants.LOG
-                .info(
-                    "Ecstatic structure islands: center chunk ({}, {}), ring {}-{} chunks, {} placement candidate(s) -> {} chunk(s) rendered ({}), {} vertices",
-                    new Object[]{
-                        centerChunkX,
-                        centerChunkZ,
-                        renderDistanceChunks,
-                        outerRadiusChunks,
-                        candidates.size(),
-                        structureChunkCount,
-                        foundStructureIds.isEmpty() ? "none" : String.join(", ", foundStructureIds),
-                        vertexCount[0]
-                    }
-                );
+//            Constants.LOG
+//                .info(
+//                    "Ecstatic structure islands: center chunk ({}, {}), ring {}-{} chunks, {} placement candidate(s) -> {} chunk(s) rendered ({}), {} vertices",
+//                    new Object[]{
+//                        centerChunkX,
+//                        centerChunkZ,
+//                        renderDistanceChunks,
+//                        outerRadiusChunks,
+//                        candidates.size(),
+//                        structureChunkCount,
+//                        foundStructureIds.isEmpty() ? "none" : String.join(", ", foundStructureIds),
+//                        vertexCount[0]
+//                    }
+//                );
         }
 
         return new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_TEX_COLOR);
