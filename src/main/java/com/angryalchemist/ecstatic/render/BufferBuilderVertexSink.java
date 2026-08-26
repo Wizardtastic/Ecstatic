@@ -22,7 +22,7 @@ final class BufferBuilderVertexSink implements VertexSink {
         int r = colorRgb >> 16 & 0xFF;
         int g = colorRgb >> 8 & 0xFF;
         int b = colorRgb & 0xFF;
-        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(0.5F, 0.5F).setLight(15728640).setNormal(nx, ny, nz);
+        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(0.5F, 0.5F).setLight(0xF000F0).setNormal(nx, ny, nz);
     }
 
     @Override
@@ -38,6 +38,6 @@ final class BufferBuilderVertexSink implements VertexSink {
         int r = colorRgb >> 16 & 0xFF;
         int g = colorRgb >> 8 & 0xFF;
         int b = colorRgb & 0xFF;
-        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(u, v).setLight(15728640).setNormal(nx, ny, nz);
+        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(u, v).setLight(0xF000F0).setNormal(nx, ny, nz);
     }
 }
