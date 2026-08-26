@@ -16,11 +16,8 @@ in vec2 texCoord0;
 
 out vec4 fragColor;
 
-void main() {
+void main() { // identical to the terrain shader except doesn't discard a < 0.1
     vec4 color = texture(Sampler0, texCoord0) * vertexColor;
-    if (color.a < 0.1) {
-        discard;
-    }
     color.rgb = mix(color.rgb, vec3(dot(color.rgb, vec3(0.299, 0.587, 0.114))), Saturation);
     vec4 fogged = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
     fragColor = mix(color, fogged, FogIntensity) * ColorModulator;
