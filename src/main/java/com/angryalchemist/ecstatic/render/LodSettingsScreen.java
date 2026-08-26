@@ -49,7 +49,7 @@ public final class LodSettingsScreen extends Screen {
         double renderDistanceInitialValue = valueFromPercent(Math.round(this.config.lodRenderDistanceScale() * 100.0F), 25, 200);
         int renderDistanceInitialPercent = percentFromValue(renderDistanceInitialValue, 25, 200, 5);
         AbstractSliderButton renderDistance = new AbstractSliderButton(
-            centerX - 130, y, 260, 20, Component.literal("Render distance: " + renderDistanceInitialPercent + "%"), renderDistanceInitialValue
+            centerX - 130, y, 260, 20, Component.literal("Render distance: " + renderDistanceInitialPercent + "%, going beyond 115% may cause lag"), renderDistanceInitialValue
         ) {
             protected void updateMessage() {
                 this.setMessage(Component.literal("Render distance: " + LodSettingsScreen.percentFromValue(this.value, 40, 200, 5) + "%"));
@@ -122,16 +122,8 @@ public final class LodSettingsScreen extends Screen {
             .bounds(centerX - 130, y, 260, 20)
             .build();
         lightingButton.visible = y >= viewportTop && y + 20 <= viewportBottom;
-        this.addRenderableWidget(lightingButton);
-        y += 32;
-        Button terrainColorButton = Button.builder(
-                Component.literal("Terrain Colors..."), b -> Minecraft.getInstance().setScreen(new LodTerrainColorScreen(this))
-            )
-            .bounds(centerX - 130, y, 260, 20)
-            .build();
-        terrainColorButton.visible = y >= viewportTop && y + 20 <= viewportBottom;
-        this.addRenderableWidget(terrainColorButton);
-        y += 32;
+        //this.addRenderableWidget(lightingButton); // technically a debug menu, average user should never need to access this
+        //y += 32;
         Button debugButton = Button.builder(Component.literal("Debug Settings..."), b -> Minecraft.getInstance().setScreen(new LodDebugSettingsScreen(this)))
             .bounds(centerX - 130, y, 260, 20)
             .build();

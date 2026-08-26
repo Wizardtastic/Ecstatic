@@ -1,3 +1,7 @@
+/**
+ * This code is unused, used to be a debug menu
+ */
+
 package com.angryalchemist.ecstatic.render;
 
 import java.util.EnumMap;
