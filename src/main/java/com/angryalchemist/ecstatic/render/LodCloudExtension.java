@@ -73,9 +73,8 @@ final class LodCloudExtension {
                     transform.scale(12.0F, 1.0F, 12.0F);
                     transform.translate(-fracX, (float)d3, -fracZ);
                     buffer.bind();
-                    ShaderInstance shader = RenderSystem.getShader();
-                    assert shader != null;
-                    buffer.drawWithShader(transform, projectionMatrix, shader);
+                    ShaderInstance fogShader = LodFogShader.getTexturedOrNull();
+                    RenderSystem.setShader(fogShader != null ? () -> fogShader : GameRenderer::getPositionTexColorShader);
                     VertexBuffer.unbind();
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.enableCull();
