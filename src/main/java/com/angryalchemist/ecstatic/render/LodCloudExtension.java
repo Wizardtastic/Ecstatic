@@ -66,7 +66,7 @@ final class LodCloudExtension {
                     RenderSystem.enableDepthTest();
                     RenderSystem.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA);
                     RenderSystem.depthMask(true);
-                    //RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+                    RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
                     RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
                     RenderSystem.setShaderColor((float)cloudColor.x, (float)cloudColor.y, (float)cloudColor.z, 1.0F);
                     Matrix4f transform = new Matrix4f(rotationOnlyMatrix);
