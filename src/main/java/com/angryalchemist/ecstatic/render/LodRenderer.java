@@ -201,7 +201,6 @@ public final class LodRenderer {
                 RenderSystem.setShaderFogEnd(savedFogEnd);
                 int lod2OuterBlocks = ringConfigForFog.outerBoundary(2) * 16;
                 LodCloudExtension.render(rotationOnlyMatrix, lodProjectionMatrix, clientLevel, camera, partialTick, lod2OuterBlocks);
-                LodBedrockPlane.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
                 LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
