@@ -51,8 +51,7 @@ public final class LodOceanPlane {
         vertexBuffer.bind();
         if (needsRebuild(cameraPos, sunAngleDeg, shallowColor, shallowAlpha, gpuShaded)) {
             Vector3f sunDirection = gpuShaded ? null : sunDirection(sunAngleDeg);
-            BufferBuilder builder = Tesselator.getInstance().getBuilder();
-            builder.begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+            BufferBuilder builder = Tesselator.getInstance().begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
 
             for (int i = 0; i < 256; i++) {
                 double angle0 = i / 256.0 * (Math.PI * 2);
@@ -81,7 +80,7 @@ public final class LodOceanPlane {
                 vertex(builder, innerX1, 62.8F, innerZ1, innerColor1);
             }
 
-            vertexBuffer.upload(builder.end());
+            vertexBuffer.upload(builder.buildOrThrow());
             lastRebuildCameraPos = cameraPos;
             lastRebuildSunAngleDeg = sunAngleDeg;
             lastRebuildWaterColor = shallowColor;
@@ -146,7 +145,7 @@ public final class LodOceanPlane {
         int g = colorRgba >> 16 & 0xFF;
         int b = colorRgba >> 8 & 0xFF;
         int a = colorRgba & 0xFF;
-        builder.vertex(x, y, z).color(r, g, b, a).endVertex();
+        builder.addVertex(x, y, z).setColor(r, g, b, a);
     }
 
     private static int withAlpha(int colorRgb, float alpha) {

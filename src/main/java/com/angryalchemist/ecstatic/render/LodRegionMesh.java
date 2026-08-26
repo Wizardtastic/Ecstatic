@@ -12,7 +12,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import java.util.ArrayList;
@@ -185,8 +185,7 @@ public final class LodRegionMesh implements AutoCloseable {
     }
 
     static VertexBuffer uploadPart(LodRegionMesh.RecordedPart part) {
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(Mode.TRIANGLES, part.format());
+        BufferBuilder builder = Tesselator.getInstance().begin(Mode.TRIANGLES, part.format());
         BufferBuilderVertexSink glSink = new BufferBuilderVertexSink(builder);
         part.sink().replayInto(glSink, part.kind());
         return upload(builder, part.sink().count());
@@ -373,7 +372,7 @@ public final class LodRegionMesh implements AutoCloseable {
         int iceColor = BiomeStyleConfig.get().iceColor();
         int subdivisions = waterTextureSubdivisions(regionFile.lodLevel);
         SurfaceMaterial.Sprite waterSprite = waterSprite();
-        VertexFormat format = litFormat ? LodTerrainRenderType.BLOCK_SAFE : DefaultVertexFormat.POSITION_COLOR_TEX;
+        VertexFormat format = litFormat ? LodTerrainRenderType.BLOCK_SAFE : DefaultVertexFormat.POSITION_TEX_COLOR;
         RecordedVertexSink sink = new RecordedVertexSink();
         RecordedVertexSink.Kind kind = litFormat ? RecordedVertexSink.Kind.LIT_TEXTURED : RecordedVertexSink.Kind.TEXTURED;
         int last = samplesPerAxis - 1;
@@ -746,7 +745,7 @@ public final class LodRegionMesh implements AutoCloseable {
         int subStep = LodSettingsConfig.get().lod1SubStepBlocks();
         int sub = subStep >= 2 ? Math.max(1, spacing / 2) : spacing;
         boolean blockyTops = spacing <= 2;
-        VertexFormat format = litFormat ? LodTerrainRenderType.BLOCK_SAFE : DefaultVertexFormat.POSITION_COLOR_TEX;
+        VertexFormat format = litFormat ? LodTerrainRenderType.BLOCK_SAFE : DefaultVertexFormat.POSITION_TEX_COLOR;
         RecordedVertexSink sink = new RecordedVertexSink();
         RecordedVertexSink.Kind kind = litFormat ? RecordedVertexSink.Kind.LIT_TEXTURED : RecordedVertexSink.Kind.TEXTURED;
         LodRegionMesh.EdgeColumn[][] edgeGrid = new LodRegionMesh.EdgeColumn[samplesPerAxis][samplesPerAxis];
@@ -1519,7 +1518,7 @@ public final class LodRegionMesh implements AutoCloseable {
         parts.add(
             new LodRegionMesh.RecordedTreePart(
                 LodTreeRenderType.forTexture(texture),
-                new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_COLOR_TEX)
+                new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_TEX_COLOR)
             )
         );
         vertexCount[0] += partVertexCount[0];
@@ -1551,18 +1550,18 @@ public final class LodRegionMesh implements AutoCloseable {
         parts.add(
             new LodRegionMesh.RecordedTreePart(
                 LodTerrainRenderType.TERRAIN_TEXTURED,
-                new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_COLOR_TEX)
+                new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_TEX_COLOR)
             )
         );
         vertexCount[0] += partVertexCount[0];
     }
 
     private static VertexBuffer upload(BufferBuilder builder, int vertexCount) {
-        RenderedBuffer rendered = builder.end();
         if (vertexCount == 0) {
             return null;
         }
 
+        MeshData rendered = builder.buildOrThrow();
         VertexBuffer vertexBuffer = new VertexBuffer(Usage.STATIC);
         vertexBuffer.bind();
         vertexBuffer.upload(rendered);
@@ -2425,10 +2424,10 @@ public final class LodRegionMesh implements AutoCloseable {
         RenderType texturedOpaqueType = texturedFogReady
             ? (backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_FOG_TEXTURED_OPAQUE : LodTerrainRenderType.TERRAIN_FOG_TEXTURED_OPAQUE_NOCULL)
             : (backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_TEXTURED_OPAQUE : LodTerrainRenderType.TERRAIN_TEXTURED_OPAQUE_NOCULL);
-        Supplier<ShaderInstance> texturedOpaqueShader = texturedFogReady ? LodFogShader::getTexturedOrNull : GameRenderer::getPositionColorTexShader;
+        Supplier<ShaderInstance> texturedOpaqueShader = texturedFogReady ? LodFogShader::getTexturedOrNull : GameRenderer::getPositionTexColorShader;
         renderBucket(texturedCheapOpaque, texturedOpaqueType, texturedOpaqueShader, modelViewMatrix, projectionMatrix);
         RenderType texturedFadeType = texturedFogReady ? LodTerrainRenderType.TERRAIN_FOG_TEXTURED : LodTerrainRenderType.TERRAIN_TEXTURED;
-        Supplier<ShaderInstance> texturedFadeShader = texturedFogReady ? LodFogShader::getTexturedOrNull : GameRenderer::getPositionColorTexShader;
+        Supplier<ShaderInstance> texturedFadeShader = texturedFogReady ? LodFogShader::getTexturedOrNull : GameRenderer::getPositionTexColorShader;
         renderBucket(texturedCheapFade, texturedFadeType, texturedFadeShader, modelViewMatrix, projectionMatrix);
     }
 
@@ -2455,7 +2454,7 @@ public final class LodRegionMesh implements AutoCloseable {
 
         if (!cheapWater.isEmpty()) {
             boolean waterShaderReady = LodWaterShader.getTexturedOrNull() != null;
-            Supplier<ShaderInstance> shader = waterShaderReady ? LodWaterShader::getTexturedOrNull : GameRenderer::getPositionColorTexShader;
+            Supplier<ShaderInstance> shader = waterShaderReady ? LodWaterShader::getTexturedOrNull : GameRenderer::getPositionTexColorShader;
             renderBucket(cheapWater, LodTerrainRenderType.WATER_TEXTURED, shader, modelViewMatrix, projectionMatrix);
         }
     }
@@ -2471,7 +2470,7 @@ public final class LodRegionMesh implements AutoCloseable {
 
         if (!treeBuckets.isEmpty()) {
             boolean treeShaderReady = LodTreeShader.getOrNull() != null;
-            Supplier<ShaderInstance> shader = treeShaderReady ? LodTreeShader::getOrNull : GameRenderer::getPositionColorTexShader;
+            Supplier<ShaderInstance> shader = treeShaderReady ? LodTreeShader::getOrNull : GameRenderer::getPositionTexColorShader;
 
             for (Entry<RenderType, List<VertexBuffer>> entry : treeBuckets.entrySet()) {
                 renderBucket(entry.getValue(), entry.getKey(), shader, modelViewMatrix, projectionMatrix);

@@ -45,45 +45,6 @@ public final class LodSettingsScreen extends Screen {
         this.maxScroll = Math.max(0, contentHeight - viewportHeight);
         this.scrollAmount = Mth.clamp(this.scrollAmount, 0.0, this.maxScroll);
         int y = viewportTop - (int)this.scrollAmount;
-        Checkbox frustumCulling = new Checkbox(centerX - 130, y, 260, 20, Component.literal("Horizon culling"), this.config.frustumCullingEnabled()) {
-            public void onPress() {
-                super.onPress();
-                LodSettingsScreen.this.config.setFrustumCullingEnabled(this.selected());
-            }
-        };
-        frustumCulling.visible = y >= viewportTop && y + 20 <= viewportBottom;
-        this.addRenderableWidget(frustumCulling);
-        y += 32;
-        Checkbox oceanPlane = new Checkbox(
-            centerX - 130, y, 260, 20, Component.literal("LOD water plane"), this.config.oceanPlaneEnabled()
-        ) {
-            public void onPress() {
-                super.onPress();
-                LodSettingsScreen.this.config.setOceanPlaneEnabled(this.selected());
-            }
-        };
-        oceanPlane.visible = y >= viewportTop && y + 20 <= viewportBottom;
-        this.addRenderableWidget(oceanPlane);
-        y += 32;
-        Checkbox opaqueWater = new Checkbox(
-            centerX - 130, y, 260, 20, Component.literal("Opaque water (culls fully submerged terrain)"), this.config.opaqueWaterEnabled()
-        ) {
-            public void onPress() {
-                super.onPress();
-                LodSettingsScreen.this.config.setOpaqueWaterEnabled(this.selected());
-            }
-        };
-        opaqueWater.visible = y >= viewportTop && y + 20 <= viewportBottom;
-        this.addRenderableWidget(opaqueWater);
-        y += 32;
-        CycleButton<Integer> lod1Detail = CycleButton.<Integer>builder(
-                step -> Component.literal(step == 2 ? "2-block steps (cheapest)" : "1-block steps (may cause lag)")
-            )
-            .withValues(new Integer[]{1, 2})
-            .withInitialValue(this.config.lod1SubStepBlocks())
-            .create(centerX - 130, y, 260, 20, Component.literal("LOD1 detail"), (button, step) -> this.config.setLod1SubStepBlocks(step));
-        lod1Detail.visible = y >= viewportTop && y + 20 <= viewportBottom;
-        this.addRenderableWidget(lod1Detail);
         y += 32;
         double renderDistanceInitialValue = valueFromPercent(Math.round(this.config.lodRenderDistanceScale() * 100.0F), 25, 200);
         int renderDistanceInitialPercent = percentFromValue(renderDistanceInitialValue, 25, 200, 5);
@@ -181,18 +142,18 @@ public final class LodSettingsScreen extends Screen {
         this.addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.onClose()).bounds(centerX + 5, footerY, 100, 20).build());
     }
 
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (this.maxScroll > 0) {
-            this.scrollAmount = Mth.clamp(this.scrollAmount - delta * 16.0, 0.0, this.maxScroll);
-            this.rebuildWidgets();
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (maxScroll > 0) {
+            scrollAmount = Mth.clamp(scrollAmount - scrollY * SCROLL_SPEED, 0, maxScroll);
+            rebuildWidgets();
             return true;
-        } else {
-            return super.mouseScrolled(mouseX, mouseY, delta);
         }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         if (this.maxScroll > 0) {

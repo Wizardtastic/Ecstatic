@@ -39,11 +39,11 @@ final class LodFogShader {
 
             try {
                 texturedInstance = new ShaderInstance(
-                    Minecraft.getInstance().getResourceManager(), "ecstatic_lod_terrain_fog_tex", DefaultVertexFormat.POSITION_COLOR_TEX
+                    Minecraft.getInstance().getResourceManager(), "ecstatic_lod_terrain_fog_tex", DefaultVertexFormat.POSITION_TEX_COLOR
                 );
             } catch (IOException | RuntimeException e) {
                 Constants.LOG
-                    .error("Ecstatic: failed to load the textured cheap-terrain fog shader; falling back to the plain (fog-less) position_color_tex shader", e);
+                    .error("Ecstatic: failed to load the textured cheap-terrain fog shader; falling back to the plain (fog-less) POSITION_TEX_COLOR shader", e);
                 texturedInstance = null;
             }
         }

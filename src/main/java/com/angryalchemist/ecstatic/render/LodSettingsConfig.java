@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 
@@ -230,18 +231,6 @@ public final class LodSettingsConfig {
         this.data.fogIntensity = Mth.clamp(fogIntensity, 0.0F, 1.0F);
     }
 
-    void save() {
-        try {
-            Files.createDirectories(this.configDir());
-
-            try (Writer writer = Files.newBufferedWriter(this.configFile())) {
-                GSON.toJson(this.data, writer);
-            }
-        } catch (IOException e) {
-            Constants.LOG.error("Failed to save LOD settings config", e);
-        }
-    }
-
     public synchronized void save() {
         try {
             Path dir = this.configDir();
@@ -257,6 +246,21 @@ public final class LodSettingsConfig {
             Files.move(tempTarget, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             Constants.LOG.error("Failed to save LOD settings config", e);
+        }
+    }
+    private void load() {
+        Path file = configFile();
+        if (!Files.exists(file)) {
+            return;
+        }
+        try (Reader reader = Files.newBufferedReader(file)) {
+            Data loaded = GSON.fromJson(reader, Data.class);
+            if (loaded != null) {
+                data = loaded;
+            }
+            LodDebugState.setEnabled(data.debugToolsEnabled);
+        } catch (IOException e) {
+            Constants.LOG.error("Failed to load LOD settings config", e);
         }
     }
 

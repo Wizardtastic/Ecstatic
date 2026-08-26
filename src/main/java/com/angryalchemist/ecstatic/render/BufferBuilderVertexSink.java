@@ -14,7 +14,7 @@ final class BufferBuilderVertexSink implements VertexSink {
         int r = colorRgb >> 16 & 0xFF;
         int g = colorRgb >> 8 & 0xFF;
         int b = colorRgb & 0xFF;
-        this.builder.vertex(x, y, z).color(r, g, b, alpha).endVertex();
+        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha);
     }
 
     @Override
@@ -22,7 +22,7 @@ final class BufferBuilderVertexSink implements VertexSink {
         int r = colorRgb >> 16 & 0xFF;
         int g = colorRgb >> 8 & 0xFF;
         int b = colorRgb & 0xFF;
-        this.builder.vertex(x, y, z).color(r, g, b, alpha).uv(0.5F, 0.5F).uv2(15728640).normal(nx, ny, nz).endVertex();
+        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(0.5F, 0.5F).setLight(15728640).setNormal(nx, ny, nz);
     }
 
     @Override
@@ -30,7 +30,7 @@ final class BufferBuilderVertexSink implements VertexSink {
         int r = colorRgb >> 16 & 0xFF;
         int g = colorRgb >> 8 & 0xFF;
         int b = colorRgb & 0xFF;
-        this.builder.vertex(x, y, z).color(r, g, b, alpha).uv(u, v).endVertex();
+        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(u, v);
     }
 
     @Override
@@ -38,6 +38,6 @@ final class BufferBuilderVertexSink implements VertexSink {
         int r = colorRgb >> 16 & 0xFF;
         int g = colorRgb >> 8 & 0xFF;
         int b = colorRgb & 0xFF;
-        this.builder.vertex(x, y, z).color(r, g, b, alpha).uv(u, v).uv2(15728640).normal(nx, ny, nz).endVertex();
+        this.builder.addVertex(x, y, z).setColor(r, g, b, alpha).setUv(u, v).setLight(15728640).setNormal(nx, ny, nz);
     }
 }

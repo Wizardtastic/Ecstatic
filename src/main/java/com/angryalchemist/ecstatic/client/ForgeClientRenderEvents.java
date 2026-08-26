@@ -14,14 +14,13 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.client.event.ViewportEvent.RenderFog;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
+import net.neoforged.neoforge.client.event.ViewportEvent.RenderFog;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import org.joml.Matrix4f;
 
 @EventBusSubscriber(modid = "ecstatic", value = Dist.CLIENT)
@@ -34,7 +33,7 @@ public final class ForgeClientRenderEvents {
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         if (event.getStage() == Stage.AFTER_PARTICLES) {
-            LodRenderer.captureTrueRotation(new Matrix4f(event.getPoseStack().last().pose()));
+            LodRenderer.captureTrueRotation(new Matrix4f(event.getModelViewMatrix()));
             LodRenderer.render(event.getProjectionMatrix(), event.getCamera());
         }
     }
@@ -61,52 +60,51 @@ public final class ForgeClientRenderEvents {
     }
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent event) {
-        if (event.phase == Phase.END) {
-            Minecraft client = Minecraft.getInstance();
-            boolean debugTools = LodDebugState.isEnabled();
+    public static void onClientTick(ClientTickEvent.Post event) {
+        Minecraft client = Minecraft.getInstance();
+        boolean debugTools = LodDebugState.isEnabled();
 
-            while (ForgeClientKeyBindings.CYCLE_VERTEX_FORMAT_KEY.consumeClick()) {
-                if (debugTools) {
-                    int override = LodDebugState.cycleVertexFormatOverride();
-                    LodDebugCommon.sendMessage(client, "vertex format override: " + vertexFormatOverrideLabel(override));
-                    LodRenderer.rebuildAllMeshes();
-                }
+        while (ForgeClientKeyBindings.CYCLE_VERTEX_FORMAT_KEY.consumeClick()) {
+            if (debugTools) {
+                int override = LodDebugState.cycleVertexFormatOverride();
+                LodDebugCommon.sendMessage(client, "vertex format override: " + vertexFormatOverrideLabel(override));
+                LodRenderer.rebuildAllMeshes();
             }
+        }
 
-            while (ForgeClientKeyBindings.CYCLE_FORCED_LOD_KEY.consumeClick()) {
-                if (debugTools) {
-                    int level = LodDebugState.cycleForcedLevel();
-                    LodDebugCommon.sendMessage(client, "forced level: " + (level == 0 ? "off (LOD1-4)" : "LOD" + level + " only"));
-                }
+        while (ForgeClientKeyBindings.CYCLE_FORCED_LOD_KEY.consumeClick()) {
+            if (debugTools) {
+                int level = LodDebugState.cycleForcedLevel();
+                LodDebugCommon.sendMessage(client, "forced level: " + (level == 0 ? "off (LOD1-4)" : "LOD" + level + " only"));
             }
+        }
 
-            while (ForgeClientKeyBindings.TOGGLE_REFERENCE_QUAD_KEY.consumeClick()) {
-                if (debugTools) {
-                    boolean enabled = LodDebugState.toggleReferenceQuad();
-                    LodDebugCommon.sendMessage(client, "debug reference quad: " + (enabled ? "on (look down)" : "off"));
-                }
+        while (ForgeClientKeyBindings.TOGGLE_REFERENCE_QUAD_KEY.consumeClick()) {
+            if (debugTools) {
+                boolean enabled = LodDebugState.toggleReferenceQuad();
+                LodDebugCommon.sendMessage(client, "debug reference quad: " + (enabled ? "on (look down)" : "off"));
             }
+        }
 
-            while (ForgeClientKeyBindings.COMPARE_SAMPLE_KEY.consumeClick()) {
-                if (debugTools) {
-                    LodDebugCompare.compareAtPlayer(client);
-                }
+        while (ForgeClientKeyBindings.COMPARE_SAMPLE_KEY.consumeClick()) {
+            if (debugTools) {
+                LodDebugCompare.compareAtPlayer(client);
             }
+        }
 
-            while (ForgeClientKeyBindings.OPEN_BIOME_STYLE_KEY.consumeClick()) {
-                if (client.screen == null) {
-                    client.setScreen(new BiomeStyleScreen());
-                }
+        while (ForgeClientKeyBindings.OPEN_BIOME_STYLE_KEY.consumeClick()) {
+            if (client.screen == null) {
+                client.setScreen(new BiomeStyleScreen());
             }
+        }
 
-            while (ForgeClientKeyBindings.OPEN_SETTINGS_KEY.consumeClick()) {
-                if (client.screen == null) {
-                    client.setScreen(new LodSettingsScreen());
-                }
+        while (ForgeClientKeyBindings.OPEN_SETTINGS_KEY.consumeClick()) {
+            if (client.screen == null) {
+                client.setScreen(new LodSettingsScreen());
             }
         }
     }
+
 
     static String vertexFormatOverrideLabel(int override) {
         return switch (override) {

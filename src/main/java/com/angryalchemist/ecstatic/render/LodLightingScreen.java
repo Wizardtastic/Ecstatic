@@ -79,7 +79,7 @@ final class LodLightingScreen extends Screen {
 
             private int percent() {
                 int raw = (int)Math.round(this.value * 100.0);
-                return Math.round(raw / 1.0F) * 1;
+                return Math.round(raw);
             }
         };
         slider.visible = y >= viewportTop && y + 20 <= viewportBottom;
@@ -87,18 +87,18 @@ final class LodLightingScreen extends Screen {
         return y + 32;
     }
 
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (this.maxScroll > 0) {
-            this.scrollAmount = Mth.clamp(this.scrollAmount - delta * 16.0, 0.0, this.maxScroll);
-            this.rebuildWidgets();
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (maxScroll > 0) {
+            scrollAmount = Mth.clamp(scrollAmount - scrollY * SCROLL_SPEED, 0, maxScroll);
+            rebuildWidgets();
             return true;
-        } else {
-            return super.mouseScrolled(mouseX, mouseY, delta);
         }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         guiGraphics.drawCenteredString(this.font, "Brightness and desaturation preview live; the rest apply on Save", this.width / 2, 32, 8421504);

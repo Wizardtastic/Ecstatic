@@ -46,7 +46,7 @@ final class LodTerrainColorScreen extends Screen {
     }
 
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 14, 16777215);
         guiGraphics.drawCenteredString(this.font, "Hex tint, FFFFFF = unchanged. Applies on Save.", this.width / 2, 28, 8421504);

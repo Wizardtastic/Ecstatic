@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -107,7 +108,7 @@ public final class LodRenderer {
                     LodDebugReferenceQuad.render(camera, projectionMatrix);
                 }
 
-                float partialTick = Minecraft.getInstance().getFrameTime();
+                float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
                 Matrix4f modelViewMatrix = new Matrix4f();
                 applyVanillaCameraBob(modelViewMatrix, partialTick);
                 modelViewMatrix.mul(trueRotationMatrix(camera));

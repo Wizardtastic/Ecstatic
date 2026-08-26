@@ -29,6 +29,8 @@ import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.chunk.PalettedContainer.Strategy;
 import net.minecraft.world.level.chunk.storage.RegionFile;
+import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
+import net.minecraft.world.level.Level;
 
 public final class SavedChunkAccess implements AutoCloseable {
     private static final int MAX_OPEN_REGION_FILES = 256;
@@ -214,7 +216,9 @@ public final class SavedChunkAccess implements AutoCloseable {
         }
 
         try {
-            RegionFile regionFile = new RegionFile(path, this.regionFolder, false);
+            RegionFile regionFile = new RegionFile(
+                    new RegionStorageInfo("ecstatic", Level.OVERWORLD, "chunk"),
+                    path, this.regionFolder, false);
             if (this.openRegionFiles.size() >= 256) {
                 this.evictOldestRegionFile();
             }

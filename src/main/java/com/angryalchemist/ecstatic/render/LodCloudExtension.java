@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 final class LodCloudExtension {
-    private static final ResourceLocation CLOUDS_LOCATION = new ResourceLocation("textures/environment/clouds.png");
+    private static final ResourceLocation CLOUDS_LOCATION = ResourceLocation.withDefaultNamespace("textures/environment/clouds.png");
     private static final float SCALE_BLOCKS_PER_UNIT = 12.0F;
     private static final float TEXEL = 0.00390625F;
     private static final int TILE_UNITS = 32;
@@ -66,7 +66,7 @@ final class LodCloudExtension {
                     RenderSystem.enableDepthTest();
                     RenderSystem.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA);
                     RenderSystem.depthMask(true);
-                    RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+                    //RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
                     RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
                     RenderSystem.setShaderColor((float)cloudColor.x, (float)cloudColor.y, (float)cloudColor.z, 1.0F);
                     Matrix4f transform = new Matrix4f(rotationOnlyMatrix);
@@ -95,8 +95,7 @@ final class LodCloudExtension {
         }
 
         buffer = new VertexBuffer(Usage.STATIC);
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+        BufferBuilder builder = Tesselator.getInstance().begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         float uOffset = gridX * 0.00390625F;
         float vOffset = gridZ * 0.00390625F;
 
@@ -110,7 +109,7 @@ final class LodCloudExtension {
         }
 
         buffer.bind();
-        buffer.upload(builder.end());
+        buffer.upload(builder.buildOrThrow());
         VertexBuffer.unbind();
     }
 
@@ -119,25 +118,21 @@ final class LodCloudExtension {
         float x1 = x + 32;
         float z0 = z;
         float z1 = z + 32;
-        builder.vertex(x0, 0.0, z1)
-            .uv(x0 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset)
-            .color(1.0F, 1.0F, 1.0F, 0.8F)
-            .normal(0.0F, -1.0F, 0.0F)
-            .endVertex();
-        builder.vertex(x1, 0.0, z1)
-            .uv(x1 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset)
-            .color(1.0F, 1.0F, 1.0F, 0.8F)
-            .normal(0.0F, -1.0F, 0.0F)
-            .endVertex();
-        builder.vertex(x1, 0.0, z0)
-            .uv(x1 * 0.00390625F + uOffset, z0 * 0.00390625F + vOffset)
-            .color(1.0F, 1.0F, 1.0F, 0.8F)
-            .normal(0.0F, -1.0F, 0.0F)
-            .endVertex();
-        builder.vertex(x0, 0.0, z0)
-            .uv(x0 * 0.00390625F + uOffset, z0 * 0.00390625F + vOffset)
-            .color(1.0F, 1.0F, 1.0F, 0.8F)
-            .normal(0.0F, -1.0F, 0.0F)
-            .endVertex();
+        builder.addVertex(x0, 0.0F, z1)
+            .setUv(x0 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset)
+            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
+            .setNormal(0.0F, -1.0F, 0.0F);
+        builder.addVertex(x1, 0.0F, z1)
+            .setUv(x1 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset)
+            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
+            .setNormal(0.0F, -1.0F, 0.0F);
+        builder.addVertex(x1, 0.0F, z0)
+            .setUv(x1 * 0.00390625F + uOffset, z0 * 0.00390625F + vOffset)
+            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
+            .setNormal(0.0F, -1.0F, 0.0F);
+        builder.addVertex(x0, 0.0F, z0)
+            .setUv(x0 * 0.00390625F + uOffset, z0 * 0.00390625F + vOffset)
+            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
+            .setNormal(0.0F, -1.0F, 0.0F);
     }
 }
