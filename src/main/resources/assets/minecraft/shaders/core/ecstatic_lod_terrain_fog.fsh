@@ -5,7 +5,6 @@
 uniform vec4 ColorModulator;
 uniform float FogStart;
 uniform float FogEnd;
-uniform vec4 FogColor;
 uniform float FogIntensity;
 
 in float vertexDistance;
@@ -17,9 +16,6 @@ void main() {
     if (vertexColor.a == 0.0) {
         discard;
     }
-    // FogIntensity (LodSettingsConfig.Data#fogIntensity) is a straight mix back toward the pre-fog
-    // color, independent of FogStart/FogEnd's own distance shape - 1.0 (default) reproduces the
-    // original always-fogged result, 0.0 disables the effect entirely.
-    vec4 fogged = linear_fog(vertexColor, vertexDistance, FogStart, FogEnd, FogColor);
-    fragColor = mix(vertexColor, fogged, FogIntensity) * ColorModulator;
+    float fade = mix(1.0, linear_fog_fade(vertexDistance, FogStart, FogEnd), FogIntensity);
+    fragColor = vec4(vertexColor.rgb, vertexColor.a * fade) * ColorModulator;
 }

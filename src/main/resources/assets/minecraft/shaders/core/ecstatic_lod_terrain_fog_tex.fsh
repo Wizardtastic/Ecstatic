@@ -6,7 +6,6 @@ uniform sampler2D Sampler0;
 uniform vec4 ColorModulator;
 uniform float FogStart;
 uniform float FogEnd;
-uniform vec4 FogColor;
 uniform float FogIntensity;
 uniform float Saturation;
 
@@ -22,6 +21,6 @@ void main() {
         discard;
     }
     color.rgb = mix(color.rgb, vec3(dot(color.rgb, vec3(0.299, 0.587, 0.114))), Saturation);
-    vec4 fogged = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
-    fragColor = mix(color, fogged, FogIntensity) * ColorModulator;
+    float fade = mix(1.0, linear_fog_fade(vertexDistance, FogStart, FogEnd), FogIntensity);
+    fragColor = vec4(color.rgb, color.a * fade) * ColorModulator;
 }

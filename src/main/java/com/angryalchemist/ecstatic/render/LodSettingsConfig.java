@@ -273,7 +273,7 @@ public final class LodSettingsConfig {
     }
 
     static final class Data {
-        boolean useLitVertexFormat = false;
+        boolean useLitVertexFormat = true;
         boolean shaderWaterEnabled = false;
         boolean frustumCullingEnabled = true;
         boolean oceanPlaneEnabled = true;
