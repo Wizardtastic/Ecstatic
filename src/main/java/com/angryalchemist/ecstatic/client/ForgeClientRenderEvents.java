@@ -6,6 +6,7 @@ import com.angryalchemist.ecstatic.debug.LodDebugState;
 import com.angryalchemist.ecstatic.render.BiomeStyleScreen;
 import com.angryalchemist.ecstatic.render.LodRenderer;
 import com.angryalchemist.ecstatic.render.LodSettingsScreen;
+import com.mojang.blaze3d.shaders.FogShape;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
@@ -52,6 +53,7 @@ public final class ForgeClientRenderEvents {
                         float farPlaneDistance = event.getFarPlaneDistance();
                         event.setNearPlaneDistance(farPlaneDistance * 100.0F);
                         event.setFarPlaneDistance(farPlaneDistance * 100.0F * 2.0F);
+                        event.setFogShape(FogShape.CYLINDER); // so that going up really high doesn't leave a visual hole in the world
                         event.setCanceled(true);
                     }
                 }
