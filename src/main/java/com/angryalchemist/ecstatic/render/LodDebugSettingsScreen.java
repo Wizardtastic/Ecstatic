@@ -44,7 +44,7 @@ final class LodDebugSettingsScreen extends Screen {
         debugTools.visible = y >= viewportTop && y + 20 <= viewportBottom;
         this.addRenderableWidget(debugTools);
         y += ROW_STRIDE;
-        Checkbox litFormat = Checkbox.builder(Component.literal("Lit vertex format (do not enable unless you know what you're doing)"), this.font)
+        Checkbox litFormat = Checkbox.builder(Component.literal("Lit vertex format (do not toggle unless you know what you're doing)"), this.font)
                 .pos(centerX - 130, y)
                 .selected(this.config.useLitVertexFormat())
                 .onValueChange((checkbox, value) -> this.config.setUseLitVertexFormat(value))
