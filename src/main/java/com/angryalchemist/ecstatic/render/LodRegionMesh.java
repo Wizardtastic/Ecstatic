@@ -2282,7 +2282,7 @@ public final class LodRegionMesh implements AutoCloseable {
         return r << 16 | g << 8 | b;
     }
 
-    static float snowStartHeightBlocks() {
+    static float snowStartHeightBlocks() { //deprecated
         ClientLevel level = Minecraft.getInstance().level;
         int minHeight = level != null ? level.getMinBuildHeight() : -64;
         int maxHeight = level != null ? level.getMaxBuildHeight() : 320;

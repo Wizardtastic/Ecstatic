@@ -213,49 +213,47 @@ public final class RegionLodCoordinator {
                 double distanceChunks = region.distanceChunksTo(playerChunkX, playerChunkZ);
                 Integer previous = this.currentLevelByRegion.get(region);
                 int previousLevel = previous == null ? -1 : previous;
+
                 if (distanceChunks > maxOuterChunks) {
                     if (previous != null && !this.inFlight.contains(region)) {
                         this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, -1));
                     }
-                } else {
-                    int targetLevel = previousLevel == -1 ? ringConfig.classify(distanceChunks) : ringConfig.resolveLevel(distanceChunks, previousLevel);
-                    if (targetLevel == 0) {
-                        double farthestDistanceChunks = region.farthestDistanceChunksTo(playerChunkX, playerChunkZ);
-                        if (farthestDistanceChunks <= ringConfig.outerBoundary(0)) {
-                            if (previous != null && !this.inFlight.contains(region) && regionHasRealTerrain(region)) {
-                                this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, -1));
-                            }
-                            continue;
-                        }
+                    continue;
+                }
 
-                        targetLevel = Math.max(1, ringConfig.classify(farthestDistanceChunks));
-                        if (targetLevel != -1 && targetLevel != previousLevel && !this.inFlight.contains(region)) {
-                            LodRegionFile targetFile = this.filesByLevel.get(targetLevel);
-                            if (targetFile.isFullySampled(region)) {
-                                this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, targetLevel));
-                            } else {
-                                if (targetLevel <= 3 && !this.bootstrapInFlight.contains(region) && !this.bootstrapFile.isFullySampled(region)) {
-                                    this.bootstrapInFlight.add(region);
-                                }
-                                this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
-                                        BOOTSTRAP_PRIORITY,
-                                        distanceChunks,
-                                        region,
-                                        () -> this.bootstrapInFlight.contains(region),
-                                        () -> this.sampleBootstrapRegion(region)
-                                ));
-                            }
-                            this.inFlight.add(region);
-                            int finalTargetLevel = targetLevel;
+                int targetLevel = previousLevel == -1 ? ringConfig.classify(distanceChunks) : ringConfig.resolveLevel(distanceChunks, previousLevel);
+                if (targetLevel == 0) {
+                    double farthestDistanceChunks = region.farthestDistanceChunksTo(playerChunkX, playerChunkZ);
+                    if (farthestDistanceChunks <= ringConfig.outerBoundary(0)) {
+                        if (previous != null && !this.inFlight.contains(region) && regionHasRealTerrain(region)) {
+                            this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, -1));
+                        }
+                        continue;
+                    }
+                    targetLevel = Math.max(1, ringConfig.classify(farthestDistanceChunks));
+                }
+
+                if (targetLevel != -1 && targetLevel != previousLevel && !this.inFlight.contains(region)) {
+                    LodRegionFile targetFile = this.filesByLevel.get(targetLevel);
+                    if (targetFile.isFullySampled(region)) {
+                        this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, targetLevel));
+                    } else {
+                        if (targetLevel <= 3 && !this.bootstrapInFlight.contains(region) && !this.bootstrapFile.isFullySampled(region)) {
+                            this.bootstrapInFlight.add(region);
                             this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
-                                    finalTargetLevel,
-                                    distanceChunks,
-                                    region,
-                                    () -> this.inFlight.contains(region),
-                                    () -> this.sampleRegion(region, finalTargetLevel)
+                                    BOOTSTRAP_PRIORITY, distanceChunks, region,
+                                    () -> this.bootstrapInFlight.contains(region),
+                                    () -> this.sampleBootstrapRegion(region)
                             ));
                         }
                     }
+                    this.inFlight.add(region);
+                    int finalTargetLevel = targetLevel;
+                    this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
+                            finalTargetLevel, distanceChunks, region,
+                            () -> this.inFlight.contains(region),
+                            () -> this.sampleRegion(region, finalTargetLevel)
+                    ));
                 }
             }
         }
@@ -362,6 +360,7 @@ public final class RegionLodCoordinator {
         try {
             this.sampleColumns(region, this.filesByLevel.get(level), LodLevel.sampleSpacingBlocks(level));
             this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, level));
+            Constants.LOG.info("Ecstatic sampled region ({}, {}) at LOD{}",region.x(), region.z(), level);
         } catch (Exception e) {
             Constants.LOG.error("Ecstatic failed to sample region ({}, {}) at LOD{}",region.x(), region.z(), level, e);
         } finally {
