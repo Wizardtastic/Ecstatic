@@ -22,8 +22,8 @@ public class Ecstatic {
     private static final int LOD1_RING_WIDTH_CHUNKS = 28;
     private static final int LOD2_RING_WIDTH_CHUNKS = 32;
     private static final int LOD3_RING_WIDTH_CHUNKS = 64;
-    private static final int LOD4_RING_WIDTH_CHUNKS = 12;
-    private static final int LOD5_RING_WIDTH_CHUNKS = 24;
+    private static final int LOD4_RING_WIDTH_CHUNKS = 34;
+    private static final int LOD5_RING_WIDTH_CHUNKS = 124;
     private static final int RING_HYSTERESIS_CHUNKS = 4;
     private static volatile MinecraftServer startingServer;
     private static volatile RegionLodCoordinator activeCoordinator;
@@ -57,7 +57,7 @@ public class Ecstatic {
                 () -> {
                     try {
                         activeCoordinator = new RegionLodCoordinator(
-                            generator, randomState, biomeRegistry, heightAccessor, storageDir, 28, 32, 64, 12, 24, 4, workerThreadCount
+                            generator, randomState, biomeRegistry, heightAccessor, storageDir, 28, 32, 64, 34, 124, 4, workerThreadCount
                         );
                     } catch (IOException e) {
                         Constants.LOG.error("Ecstatic failed to start the dynamic region coordinator", e);

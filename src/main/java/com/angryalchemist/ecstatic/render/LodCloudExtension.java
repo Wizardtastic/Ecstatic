@@ -51,7 +51,7 @@ final class LodCloudExtension {
                 int gridX = (int)Math.floor(d2);
                 int gridZ = (int)Math.floor(d4);
                 int requestedHalfUnits = (int)Math.ceil(outerRadiusBlocks / 12.0F);
-                int halfExtentUnits = (ceilDiv(requestedHalfUnits, 32) + 1) * 32;
+                int halfExtentUnits = (ceilDiv(requestedHalfUnits) + 1) * 32;
                 if (buffer == null || gridX != lastGridX || gridZ != lastGridZ || halfExtentUnits != lastHalfExtentUnits) {
                     rebuild(gridX, gridZ, halfExtentUnits);
                     lastGridX = gridX;
@@ -74,6 +74,7 @@ final class LodCloudExtension {
                     transform.translate(-fracX, (float)d3, -fracZ);
                     buffer.bind();
                     ShaderInstance shader = RenderSystem.getShader();
+                    assert shader != null;
                     buffer.drawWithShader(transform, projectionMatrix, shader);
                     VertexBuffer.unbind();
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -85,8 +86,8 @@ final class LodCloudExtension {
         }
     }
 
-    private static int ceilDiv(int numerator, int denominator) {
-        return (numerator + denominator - 1) / denominator;
+    private static int ceilDiv(int numerator) {
+        return (numerator + 32 - 1) / 32;
     }
 
     private static void rebuild(int gridX, int gridZ, int halfExtentUnits) {
@@ -95,7 +96,7 @@ final class LodCloudExtension {
         }
 
         buffer = new VertexBuffer(Usage.STATIC);
-        BufferBuilder builder = Tesselator.getInstance().begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+        BufferBuilder builder = Tesselator.getInstance().begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         float uOffset = gridX * 0.00390625F;
         float vOffset = gridZ * 0.00390625F;
 
@@ -114,25 +115,11 @@ final class LodCloudExtension {
     }
 
     private static void emitTile(BufferBuilder builder, int x, int z, float uOffset, float vOffset) {
-        float x0 = x;
         float x1 = x + 32;
-        float z0 = z;
         float z1 = z + 32;
-        builder.addVertex(x0, 0.0F, z1)
-            .setUv(x0 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset)
-            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
-            .setNormal(0.0F, -1.0F, 0.0F);
-        builder.addVertex(x1, 0.0F, z1)
-            .setUv(x1 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset)
-            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
-            .setNormal(0.0F, -1.0F, 0.0F);
-        builder.addVertex(x1, 0.0F, z0)
-            .setUv(x1 * 0.00390625F + uOffset, z0 * 0.00390625F + vOffset)
-            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
-            .setNormal(0.0F, -1.0F, 0.0F);
-        builder.addVertex(x0, 0.0F, z0)
-            .setUv(x0 * 0.00390625F + uOffset, z0 * 0.00390625F + vOffset)
-            .setColor(1.0F, 1.0F, 1.0F, 0.8F)
-            .setNormal(0.0F, -1.0F, 0.0F);
+        builder.addVertex((float) x, 0.0F, z1).setUv((float) x * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset).setColor(1.0F, 1.0F, 1.0F, 0.8F);
+        builder.addVertex(x1, 0.0F, z1).setUv(x1 * 0.00390625F + uOffset, z1 * 0.00390625F + vOffset).setColor(1.0F, 1.0F, 1.0F, 0.8F);
+        builder.addVertex(x1, 0.0F, (float) z).setUv(x1 * 0.00390625F + uOffset, (float) z * 0.00390625F + vOffset).setColor(1.0F, 1.0F, 1.0F, 0.8F);
+        builder.addVertex((float) x, 0.0F, (float) z).setUv((float) x * 0.00390625F + uOffset, (float) z * 0.00390625F + vOffset).setColor(1.0F, 1.0F, 1.0F, 0.8F);
     }
 }
