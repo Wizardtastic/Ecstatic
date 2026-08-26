@@ -2,13 +2,12 @@ package com.angryalchemist.ecstatic.client;
 
 import com.mojang.blaze3d.platform.InputConstants.Type;
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@EventBusSubscriber(modid = "ecstatic", value = Dist.CLIENT, bus = Bus.MOD)
+@EventBusSubscriber(modid = "ecstatic", value = Dist.CLIENT)
 public final class ForgeClientKeyBindings {
     public static final KeyMapping CYCLE_VERTEX_FORMAT_KEY = new KeyMapping("key.ecstatic.cycle_vertex_format", Type.KEYSYM, 298, "key.categories.ecstatic");
     public static final KeyMapping CYCLE_FORCED_LOD_KEY = new KeyMapping("key.ecstatic.cycle_forced_lod", Type.KEYSYM, 299, "key.categories.ecstatic");

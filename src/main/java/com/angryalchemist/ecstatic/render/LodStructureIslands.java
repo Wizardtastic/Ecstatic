@@ -85,7 +85,7 @@ final class LodStructureIslands {
                     ? LodTerrainRenderType.TERRAIN_FOG_TEXTURED_OPAQUE_NOCULL
                     : LodTerrainRenderType.TERRAIN_TEXTURED_OPAQUE_NOCULL;
                 renderType.setupRenderState();
-                RenderSystem.setShader(fogReady ? LodFogShader::getTexturedOrNull : GameRenderer::getPositionColorTexShader);
+                RenderSystem.setShader(fogReady ? LodFogShader::getTexturedOrNull : GameRenderer::getPositionTexColorShader);
                 current.bind();
                 current.drawWithShader(modelViewMatrix, projectionMatrix, RenderSystem.getShader());
                 VertexBuffer.unbind();
@@ -194,7 +194,7 @@ final class LodStructureIslands {
                 );
         }
 
-        return new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_COLOR_TEX);
+        return new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_TEX_COLOR);
     }
 
     private static boolean withinRenderDistance(int chunkX, int chunkZ, int centerChunkX, int centerChunkZ, int renderDistanceChunks) {

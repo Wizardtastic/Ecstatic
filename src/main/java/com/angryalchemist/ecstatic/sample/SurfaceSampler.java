@@ -4,17 +4,19 @@ import com.angryalchemist.ecstatic.Constants;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeTags;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -40,6 +42,8 @@ public final class SurfaceSampler {
     private static final int GRASS_COLOR_BLEND_RADIUS = 2; // radius to blend terrain color
     private static final Map<Biome, Boolean> hasTreesCache = new ConcurrentHashMap<>(); //caches biome tree data. computed once per biome instance. 
     private static final Method SURFACE_SYSTEM_GET_BAND = resolveGetBandMethod(); // vanilla's terracotta band gen
+    private static final Set<ResourceLocation> BADLANDS_BIOMES = Set.of(
+            Biomes.BADLANDS.location(), Biomes.ERODED_BADLANDS.location(), Biomes.WOODED_BADLANDS.location());
 
     private SurfaceSampler() {
     }
@@ -102,9 +106,10 @@ public final class SurfaceSampler {
         );
         Biome biome = (Biome)biomeHolder.value();
         int biomeRawId = biomeRegistry.getId(biome);
-        int colorRgb = biomeHolder.is(BiomeTags.IS_BADLANDS)
-            ? badlandsColor(randomState, biome, blockX, height, blockZ)
-            : averagedGrassColor(biome, blockX, blockZ);
+        ResourceLocation biomeKey = biomeRegistry.getKey(biome);
+        int colorRgb = (biomeKey != null && BADLANDS_BIOMES.contains(biomeKey))
+                ? badlandsColor(randomState, biome, blockX, height, blockZ)
+                : averagedGrassColor(biome, blockX, blockZ);
         boolean hasTrees = hasTreesCache.computeIfAbsent(biome, SurfaceSampler::biomeHasTrees);
         return new SurfaceSample(height, biomeRawId, colorRgb, hasTrees);
     }

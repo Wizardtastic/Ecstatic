@@ -192,20 +192,20 @@ public final class RegionLodCoordinator {
         int clientRenderDistanceChunks = Minecraft.getInstance().options.getEffectiveRenderDistance();
         int ring1StartChunks = RingConfig.ring1StartChunks(clientRenderDistanceChunks);
         RingConfig ringConfig = RingConfig.scaled(
-            ring1StartChunks,
-            this.lod1Width,
-            this.lod2Width,
-            this.lod3Width,
-            this.lod4Width,
-            this.lod5Width,
-            this.hysteresisChunks,
-            LodSettingsConfig.get().lodRenderDistanceScale()
+                ring1StartChunks,
+                this.lod1Width,
+                this.lod2Width,
+                this.lod3Width,
+                this.lod4Width,
+                this.lod5Width,
+                this.hysteresisChunks,
+                LodSettingsConfig.get().lodRenderDistanceScale()
         );
         int maxOuterChunks = ringConfig.outerBoundary(5) + this.hysteresisChunks;
-        int minRegionX = Math.floorDiv((int)Math.floor(playerChunkX - maxOuterChunks), 32);
-        int maxRegionX = Math.floorDiv((int)Math.ceil(playerChunkX + maxOuterChunks), 32);
-        int minRegionZ = Math.floorDiv((int)Math.floor(playerChunkZ - maxOuterChunks), 32);
-        int maxRegionZ = Math.floorDiv((int)Math.ceil(playerChunkZ + maxOuterChunks), 32);
+        int minRegionX = Math.floorDiv((int) Math.floor(playerChunkX - maxOuterChunks), 32);
+        int maxRegionX = Math.floorDiv((int) Math.ceil(playerChunkX + maxOuterChunks), 32);
+        int minRegionZ = Math.floorDiv((int) Math.floor(playerChunkZ - maxOuterChunks), 32);
+        int maxRegionZ = Math.floorDiv((int) Math.ceil(playerChunkZ + maxOuterChunks), 32);
 
         for (int rx = minRegionX; rx <= maxRegionX; rx++) {
             for (int rz = minRegionZ; rz <= maxRegionZ; rz++) {
@@ -229,33 +229,34 @@ public final class RegionLodCoordinator {
                         }
 
                         targetLevel = Math.max(1, ringConfig.classify(farthestDistanceChunks));
+                        if (targetLevel != -1 && targetLevel != previousLevel && !this.inFlight.contains(region)) {
+                            LodRegionFile targetFile = this.filesByLevel.get(targetLevel);
+                            if (targetFile.isFullySampled(region)) {
+                                this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, targetLevel));
+                            } else {
+                                if (targetLevel <= 3 && !this.bootstrapInFlight.contains(region) && !this.bootstrapFile.isFullySampled(region)) {
+                                    this.bootstrapInFlight.add(region);
+                                }
+                                this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
+                                        BOOTSTRAP_PRIORITY,
+                                        distanceChunks,
+                                        region,
+                                        () -> this.bootstrapInFlight.contains(region),
+                                        () -> this.sampleBootstrapRegion(region)
+                                ));
+                            }
+                            this.inFlight.add(region);
+                            int finalTargetLevel = targetLevel;
+                            this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
+                                    finalTargetLevel,
+                                    distanceChunks,
+                                    region,
+                                    () -> this.inFlight.contains(region),
+                                    () -> this.sampleRegion(region, finalTargetLevel)
+                            ));
+                        }
                     }
-
-        if (targetLevel != -1 && targetLevel != previousLevel && !this.inFlight.contains(region)) {
-            LodRegionFile targetFile = this.filesByLevel.get(targetLevel);
-            if (targetFile.isFullySampled(region)) {
-                this.ready.add(new RegionLodCoordinator.RegionReadyResult(region, targetLevel));
-            } else {
-                if (targetLevel <= 3 && !this.bootstrapInFlight.contains(region) && !this.bootstrapFile.isFullySampled(region)) {
-                    this.bootstrapInFlight.add(region);
-                    this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
-                        BOOTSTRAP_PRIORITY, 
-                        distanceChunks, 
-                        region, 
-                        () -> this.bootstrapInFlight.contains(region),
-                        () -> this.sampleBootstrapRegion(region)
-                    ));
                 }
-
-                this.inFlight.add(region);
-                int finalTargetLevel = targetLevel;
-                this.pendingTasks.put(new RegionLodCoordinator.SampleTask(
-                    finalTargetLevel, 
-                    distanceChunks, 
-                    region, 
-                    () -> this.inFlight.contains(region), 
-                    () -> this.sampleRegion(region, finalTargetLevel)
-                ));
             }
         }
     }

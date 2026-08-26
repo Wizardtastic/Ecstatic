@@ -43,10 +43,10 @@ final class LodWaterShader {
 
             try {
                 texturedInstance = new ShaderInstance(
-                    Minecraft.getInstance().getResourceManager(), "ecstatic_lod_water_tex", DefaultVertexFormat.POSITION_COLOR_TEX
+                    Minecraft.getInstance().getResourceManager(), "ecstatic_lod_water_tex", DefaultVertexFormat.POSITION_TEX_COLOR
                 );
             } catch (IOException | RuntimeException e) {
-                Constants.LOG.error("Ecstatic: failed to load the textured ocean-plane water shader; falling back to the plain position_color_tex shader", e);
+                Constants.LOG.error("Ecstatic: failed to load the textured ocean-plane water shader; falling back to the plain POSITION_TEX_COLOR shader", e);
                 texturedInstance = null;
             }
         }

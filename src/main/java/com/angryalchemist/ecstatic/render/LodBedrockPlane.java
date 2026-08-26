@@ -39,7 +39,7 @@ final class LodBedrockPlane {
 
             if (buffer != null) {
                 LodTerrainRenderType.TERRAIN_TEXTURED_OPAQUE_NOCULL.setupRenderState();
-                RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
                 buffer.bind();
                 buffer.drawWithShader(modelViewMatrix, projectionMatrix, RenderSystem.getShader());
                 VertexBuffer.unbind();
@@ -60,8 +60,7 @@ final class LodBedrockPlane {
         builtCenterX = centerX;
         builtCenterZ = centerZ;
         buffer = new VertexBuffer(Usage.STATIC);
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        BufferBuilder builder = Tesselator.getInstance().begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         int tilesPerAxis = (int)Math.ceil(128.0);
         float originX = (float)(Math.floor(centerX / 16.0) * 16.0) - tilesPerAxis * 16.0F;
         float originZ = (float)(Math.floor(centerZ / 16.0) * 16.0) - tilesPerAxis * 16.0F;
@@ -79,15 +78,15 @@ final class LodBedrockPlane {
         }
 
         buffer.bind();
-        buffer.upload(builder.end());
+        buffer.upload(builder.buildOrThrow());
         VertexBuffer.unbind();
     }
 
     private static void emitTile(BufferBuilder builder, float x0, float y, float z0, float x1, float z1) {
         SurfaceMaterial.Sprite sprite = cachedSprite;
-        builder.vertex(x0, y, z1).color(255, 255, 255, 255).uv(sprite.u0(), sprite.v1()).endVertex();
-        builder.vertex(x1, y, z1).color(255, 255, 255, 255).uv(sprite.u1(), sprite.v1()).endVertex();
-        builder.vertex(x1, y, z0).color(255, 255, 255, 255).uv(sprite.u1(), sprite.v0()).endVertex();
-        builder.vertex(x0, y, z0).color(255, 255, 255, 255).uv(sprite.u0(), sprite.v0()).endVertex();
+        builder.addVertex(x0, y, z1).setColor(255, 255, 255, 255).setUv(sprite.u0(), sprite.v1());
+        builder.addVertex(x1, y, z1).setColor(255, 255, 255, 255).setUv(sprite.u1(), sprite.v1());
+        builder.addVertex(x1, y, z0).setColor(255, 255, 255, 255).setUv(sprite.u1(), sprite.v0());
+        builder.addVertex(x0, y, z0).setColor(255, 255, 255, 255).setUv(sprite.u0(), sprite.v0());
     }
 }

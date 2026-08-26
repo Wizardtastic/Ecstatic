@@ -64,21 +64,6 @@ public final class BiomeStyleScreen extends Screen {
         this.groundTintBox.setMaxLength(7);
         this.groundTintBox.setValue(toHex(this.config.entry(this.group).groundTint));
         this.groundTintBox.setResponder(value -> applyHex(value, rgb -> this.config.entry(this.group).groundTint = rgb));
-        this.groundTintEnabledCheckbox = (Checkbox)this.addRenderableWidget(
-            new Checkbox(
-                this.groundTintBox.getX() + this.groundTintBox.getWidth() + 20 + 16,
-                groundRowY,
-                60,
-                20,
-                Component.literal("Tint"),
-                this.config.groundTintEnabled(this.group)
-            ) {
-                public void onPress() {
-                    super.onPress();
-                    BiomeStyleScreen.this.config.setGroundTintEnabled(BiomeStyleScreen.this.group, this.selected());
-                }
-            }
-        );
         this.waterLabelY = trunkRowY + 6;
         this.waterColorBox = (EditBox)this.addRenderableWidget(new EditBox(this.font, leftColumnX, foliageRowY, 80, 20, Component.literal("Water Color")));
         this.waterColorBox.setMaxLength(7);
@@ -109,7 +94,7 @@ public final class BiomeStyleScreen extends Screen {
     }
 
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         guiGraphics.drawCenteredString(this.font, titleCase(this.group.name()), this.width / 2, 46, 16777215);

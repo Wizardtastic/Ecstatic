@@ -20,9 +20,9 @@ final class LodTreeShader {
             loadAttempted = true;
 
             try {
-                instance = new ShaderInstance(Minecraft.getInstance().getResourceManager(), "ecstatic_lod_tree", DefaultVertexFormat.POSITION_COLOR_TEX);
+                instance = new ShaderInstance(Minecraft.getInstance().getResourceManager(), "ecstatic_lod_tree", DefaultVertexFormat.POSITION_TEX_COLOR);
             } catch (IOException | RuntimeException e) {
-                Constants.LOG.error("Ecstatic: failed to load the tree billboard shader; falling back to the plain (fog-less) position_color_tex shader", e);
+                Constants.LOG.error("Ecstatic: failed to load the tree billboard shader; falling back to the plain (fog-less) POSITION_TEX_COLOR shader", e);
                 instance = null;
             }
         }
