@@ -2366,17 +2366,20 @@ public final class LodRegionMesh implements AutoCloseable {
             }
         }
 
-        boolean parallaxShaderReady = !IrisCompat.isShaderPackActive() && LodParallaxShader.getOrNull() != null;
+        boolean shaderPackActive = IrisCompat.isShaderPackActive();
+        boolean parallaxShaderReady = !shaderPackActive && LodParallaxShader.getOrNull() != null;
+        boolean litShaderReady = !shaderPackActive && LodLitShader.getOrNull() != null;
         boolean backfaceCullingEnabled = LodSettingsConfig.get().backfaceCullingEnabled();
+        Supplier<ShaderInstance> litShader = litShaderReady ? LodLitShader::getOrNull : GameRenderer::getRendertypeSolidShader;
         RenderType plainLitOpaqueRenderType = parallaxShaderReady
                 ? LodTerrainRenderType.TERRAIN_PARALLAX
                 : (backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_OPAQUE_NOCULL);
-        Supplier<ShaderInstance> plainLitShader = parallaxShaderReady ? LodParallaxShader::getOrNull : GameRenderer::getRendertypeSolidShader;
+        Supplier<ShaderInstance> plainLitShader = parallaxShaderReady ? LodParallaxShader::getOrNull : litShader;
         renderBucket(plainLitOpaque, plainLitOpaqueRenderType, plainLitShader, modelViewMatrix, projectionMatrix);
         renderBucket(
                 texturedLitOpaque,
                 backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE_NOCULL,
-                GameRenderer::getRendertypeSolidShader,
+                litShader,
                 modelViewMatrix,
                 projectionMatrix
         );
@@ -2415,8 +2418,9 @@ public final class LodRegionMesh implements AutoCloseable {
                     projectionMatrix
             );
         } else {
-            renderBucket(plainLitFade, LodTerrainRenderType.TERRAIN_LIT, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
-            renderBucket(texturedLitFade, LodTerrainRenderType.TERRAIN_LIT_TEXTURED, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
+            Supplier<ShaderInstance> litShader = LodLitShader.getOrNull() != null ? LodLitShader::getOrNull : GameRenderer::getRendertypeTranslucentShader;
+            renderBucket(plainLitFade, LodTerrainRenderType.TERRAIN_LIT, litShader, modelViewMatrix, projectionMatrix);
+            renderBucket(texturedLitFade, LodTerrainRenderType.TERRAIN_LIT_TEXTURED, litShader, modelViewMatrix, projectionMatrix);
         }
     }
 
