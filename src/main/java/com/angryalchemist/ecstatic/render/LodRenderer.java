@@ -178,25 +178,20 @@ public final class LodRenderer {
                 RenderSystem.setShaderFogEnd(fogEndBlocks);
                 IrisCompat.endPhase(neutralPhaseToken);
 
-                Object translucentPhaseToken = IrisCompat.beginTranslucentPhase();
-                LodRegionMesh.renderWaterLit(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                LodRegionMesh.renderWaterLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
-                RenderSystem.setShaderFogEnd(fogEndBlocks);
-                IrisCompat.endPhase(translucentPhaseToken);
-
                 if (!cameraUnderwater) {
                     Object terrainPhaseToken = IrisCompat.beginTerrainPhase();
-                    LodRegionMesh.renderTerrainLit(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    LodRegionMesh.renderTerrainLitOpaque(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
                     RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                    LodRegionMesh.renderTerrainLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(fogEndBlocks);
-                    LodRegionMesh.renderTerrainCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                    LodRegionMesh.renderTrees(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                    LodRegionMesh.renderTerrainCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    LodRegionMesh.renderTerrainLitOpaque(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
                     RenderSystem.setShaderFogEnd(fogEndBlocks);
                     IrisCompat.endPhase(terrainPhaseToken);
+
+                    Object terrainFadePhaseToken = IrisCompat.beginTranslucentPhase();
+                    LodRegionMesh.renderTerrainLitFade(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                    LodRegionMesh.renderTerrainLitFade(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(fogEndBlocks);
+                    IrisCompat.endPhase(terrainFadePhaseToken);
                 }
 
                 int lodCloudRadiusBlocks = ringConfigForFog.outerBoundary(5) * 16;
