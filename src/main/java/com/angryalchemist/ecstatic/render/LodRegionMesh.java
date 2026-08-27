@@ -2394,8 +2394,30 @@ public final class LodRegionMesh implements AutoCloseable {
             }
         }
 
-        renderBucket(plainLitFade, LodTerrainRenderType.TERRAIN_LIT, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
-        renderBucket(texturedLitFade, LodTerrainRenderType.TERRAIN_LIT_TEXTURED, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
+        if (IrisCompat.isShaderPackActive()) {
+            // Shader packs fully replace the translucent fragment shader with their own water/glass material
+            // So basically our little fade thing with alpha doesn't work as far as I'm aware
+            // I don't think there's an (easy) way around this, so for now we're just going to have to settle with a hard cutoff
+            // We can fully deal with this later, 1.4.0 does not support shaders
+            boolean backfaceCullingEnabled = LodSettingsConfig.get().backfaceCullingEnabled();
+            renderBucket(
+                    plainLitFade,
+                    backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_OPAQUE_NOCULL,
+                    GameRenderer::getRendertypeSolidShader,
+                    modelViewMatrix,
+                    projectionMatrix
+            );
+            renderBucket(
+                    texturedLitFade,
+                    backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE_NOCULL,
+                    GameRenderer::getRendertypeSolidShader,
+                    modelViewMatrix,
+                    projectionMatrix
+            );
+        } else {
+            renderBucket(plainLitFade, LodTerrainRenderType.TERRAIN_LIT, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
+            renderBucket(texturedLitFade, LodTerrainRenderType.TERRAIN_LIT_TEXTURED, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
+        }
     }
 
     public static void renderTerrainCheap(List<LodRegionMesh> meshes, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
