@@ -4,7 +4,7 @@ public final class RingConfig {
     private final int[] outerBoundaryChunks = new int[6];
     public final int hysteresisChunks;
     
-    public static final int RING_START_MARGIN_CHUNKS = 12; 
+    public static final int RING_START_MARGIN_CHUNKS = 20;
 
     private static final int DEFAULT_LOD1_WIDTH = 16;
     private static final int DEFAULT_LOD2_WIDTH = 32;

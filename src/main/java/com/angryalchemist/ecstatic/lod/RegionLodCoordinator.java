@@ -428,8 +428,8 @@ public synchronized void shutdown() {
     ) implements Comparable<RegionLodCoordinator.SampleTask> {
         @Override
         public int compareTo(RegionLodCoordinator.SampleTask other) {
-            int cmp = Integer.compare(this.level, other.level);
-            return cmp != 0 ? cmp : Double.compare(this.distanceChunks, other.distanceChunks);
+            int cmp = Double.compare(this.distanceChunks, other.distanceChunks);
+            return cmp != 0 ? cmp : Integer.compare(this.level, other.level);
         }
     }
 
