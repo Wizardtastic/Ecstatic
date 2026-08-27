@@ -2356,40 +2356,46 @@ public final class LodRegionMesh implements AutoCloseable {
         return Math.max(0, Math.min(255, v));
     }
 
-    public static void renderTerrainLit(List<LodRegionMesh> meshes, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
+    public static void renderTerrainLitOpaque(List<LodRegionMesh> meshes, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
         List<VertexBuffer> plainLitOpaque = new ArrayList<>();
-        List<VertexBuffer> plainLitFade = new ArrayList<>();
         List<VertexBuffer> texturedLitOpaque = new ArrayList<>();
-        List<VertexBuffer> texturedLitFade = new ArrayList<>();
 
         for (LodRegionMesh mesh : meshes) {
-            if (mesh.terrainLit) {
-                if (mesh.terrainBufferOpaque != null) {
-                    (mesh.terrainTextured ? texturedLitOpaque : plainLitOpaque).add(mesh.terrainBufferOpaque);
-                }
-
-                if (mesh.terrainBufferFade != null) {
-                    (mesh.terrainTextured ? texturedLitFade : plainLitFade).add(mesh.terrainBufferFade);
-                }
+            if (mesh.terrainLit && mesh.terrainBufferOpaque != null) {
+                (mesh.terrainTextured ? texturedLitOpaque : plainLitOpaque).add(mesh.terrainBufferOpaque);
             }
         }
 
         boolean parallaxShaderReady = !IrisCompat.isShaderPackActive() && LodParallaxShader.getOrNull() != null;
         boolean backfaceCullingEnabled = LodSettingsConfig.get().backfaceCullingEnabled();
         RenderType plainLitOpaqueRenderType = parallaxShaderReady
-            ? LodTerrainRenderType.TERRAIN_PARALLAX
-            : (backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_OPAQUE_NOCULL);
+                ? LodTerrainRenderType.TERRAIN_PARALLAX
+                : (backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_OPAQUE_NOCULL);
         Supplier<ShaderInstance> plainLitShader = parallaxShaderReady ? LodParallaxShader::getOrNull : GameRenderer::getRendertypeSolidShader;
         renderBucket(plainLitOpaque, plainLitOpaqueRenderType, plainLitShader, modelViewMatrix, projectionMatrix);
-        renderBucket(plainLitFade, LodTerrainRenderType.TERRAIN_LIT, GameRenderer::getRendertypeSolidShader, modelViewMatrix, projectionMatrix);
         renderBucket(
-            texturedLitOpaque,
-            backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE_NOCULL,
-            GameRenderer::getRendertypeSolidShader,
-            modelViewMatrix,
-            projectionMatrix
+                texturedLitOpaque,
+                backfaceCullingEnabled ? LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE : LodTerrainRenderType.TERRAIN_LIT_TEXTURED_OPAQUE_NOCULL,
+                GameRenderer::getRendertypeSolidShader,
+                modelViewMatrix,
+                projectionMatrix
         );
-        renderBucket(texturedLitFade, LodTerrainRenderType.TERRAIN_LIT_TEXTURED, GameRenderer::getRendertypeSolidShader, modelViewMatrix, projectionMatrix);
+    }
+
+    public static void renderTerrainLitFade(List<LodRegionMesh> meshes, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
+        List<VertexBuffer> plainLitFade = new ArrayList<>();
+        List<VertexBuffer> texturedLitFade = new ArrayList<>();
+
+        for (LodRegionMesh mesh : meshes) {
+            if (mesh.terrainLit) {
+                if (mesh.terrainBufferFade != null) {
+                    (mesh.terrainTextured ? texturedLitFade : plainLitFade).add(mesh.terrainBufferFade);
+                }
+            }
+        }
+
+        renderBucket(plainLitFade, LodTerrainRenderType.TERRAIN_LIT, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
+        renderBucket(texturedLitFade, LodTerrainRenderType.TERRAIN_LIT_TEXTURED, GameRenderer::getRendertypeTranslucentShader, modelViewMatrix, projectionMatrix);
     }
 
     public static void renderTerrainCheap(List<LodRegionMesh> meshes, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
