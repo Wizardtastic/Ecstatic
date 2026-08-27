@@ -170,42 +170,40 @@ public final class LodRenderer {
                 LodWaterShader.setFogIntensity(fogIntensity);
                 LodFogShader.setSaturation(LodSettingsConfig.get().saturationReduction());
                 boolean cameraUnderwater = camera.getFluidInCamera() == FogType.WATER;
-                if (!cameraUnderwater) {
-                    Object terrainPhaseToken = IrisCompat.beginTerrainPhase();
-                    LodRegionMesh.renderTerrainLit(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                    LodRegionMesh.renderTerrainLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(fogEndBlocks);
-                    IrisCompat.endPhase(terrainPhaseToken);
-                }
 
                 Object neutralPhaseToken = IrisCompat.beginNeutralPhase();
-                if (!cameraUnderwater) {
-                    LodRegionMesh.renderTerrainCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                    LodRegionMesh.renderTrees(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                    LodRegionMesh.renderTerrainCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(fogEndBlocks);
-                }
-
                 LodRegionMesh.renderWaterCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
                 RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
                 LodRegionMesh.renderWaterCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
                 RenderSystem.setShaderFogEnd(fogEndBlocks);
                 IrisCompat.endPhase(neutralPhaseToken);
+
                 Object translucentPhaseToken = IrisCompat.beginTranslucentPhase();
                 LodRegionMesh.renderWaterLit(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
                 RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
                 LodRegionMesh.renderWaterLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
                 RenderSystem.setShaderFogEnd(fogEndBlocks);
                 IrisCompat.endPhase(translucentPhaseToken);
+
+                if (!cameraUnderwater) {
+                    Object terrainPhaseToken = IrisCompat.beginTerrainPhase();
+                    LodRegionMesh.renderTerrainLit(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                    LodRegionMesh.renderTerrainLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(fogEndBlocks);
+                    LodRegionMesh.renderTerrainCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    LodRegionMesh.renderTrees(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                    LodRegionMesh.renderTerrainCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(fogEndBlocks);
+                    IrisCompat.endPhase(terrainPhaseToken);
+                }
+
                 int lodCloudRadiusBlocks = ringConfigForFog.outerBoundary(5) * 16;
                 LodCloudExtension.render(rotationOnlyMatrix, lodProjectionMatrix, clientLevel, camera, partialTick, lodCloudRadiusBlocks);
                 RenderSystem.setShaderFogStart(savedFogStart);
                 RenderSystem.setShaderFogEnd(savedFogEnd);
-                LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
+                //LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
