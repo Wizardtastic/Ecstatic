@@ -106,100 +106,121 @@ public final class LodRenderer {
                 drainPendingCoordinatorBuilds();
                 maybeRefreshFade(cameraPos, biomeRegistry);
                 drainPendingFadeBuilds();
-                if (LodDebugState.isReferenceQuadEnabled()) {
-                    LodDebugReferenceQuad.render(camera, projectionMatrix);
-                }
+                boolean skipRendering = cameraPos.y < 35.0; // disables rendering if below 35
+                // should be 100% safe in vanilla, players literally couldn't see the horizon from below 35 even if they tried
+                // coincidentally (not) also fixes a bug where being below bedrock would expose the bottoms of columns
+                // to my knowledge, there aren't any mods that this would break, although it could potentially break world gen
+                // for mods that have terrain below sea level potentially?
+                if (!skipRendering) {
+                    if (LodDebugState.isReferenceQuadEnabled()) {
+                        LodDebugReferenceQuad.render(camera, projectionMatrix);
+                    }
 
-                float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
-                Matrix4f modelViewMatrix = new Matrix4f();
-                applyVanillaCameraBob(modelViewMatrix, partialTick);
-                modelViewMatrix.mul(trueRotationMatrix(camera));
-                Matrix4f rotationOnlyMatrix = new Matrix4f(modelViewMatrix);
-                modelViewMatrix.translate(-((float) cameraPos.x), -((float) cameraPos.y), -((float) cameraPos.z));
-                float dayFraction = clamp01((clientLevel.getSkyDarken(partialTick) - 0.2F) / 0.8F);
-                float night = LodSettingsConfig.get().nightBrightness();
-                float day = LodSettingsConfig.get().dayBrightness();
-                float brightness = night + (day - night) * dayFraction;
-                RenderSystem.setShaderColor(brightness, brightness, brightness, 1.0F);
-                int clientRenderDistanceChunks = Minecraft.getInstance().options.getEffectiveRenderDistance();
-                Matrix4f lodProjectionMatrix = LodFarPlaneProjection.withExtendedFarPlane(projectionMatrix, extendedFarPlaneBlocks(clientRenderDistanceChunks));
-                Matrix4f viewProjectionMatrix = new Matrix4f(lodProjectionMatrix).mul(modelViewMatrix);
-                FrustumIntersection frustum = new FrustumIntersection(viewProjectionMatrix);
-                boolean cullingEnabled = LodSettingsConfig.get().frustumCullingEnabled();
-                float minBuildHeight = clientLevel.getMinBuildHeight();
-                float maxBuildHeight = clientLevel.getMaxBuildHeight();
-                int forcedLevel = LodDebugState.forcedLevel();
-                List<LodRegionMesh> visibleMeshes = new ArrayList<>();
-                List<LodRegionMesh> visiblePlaceholderMeshes = new ArrayList<>();
+                    float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+                    Matrix4f modelViewMatrix = new Matrix4f();
+                    applyVanillaCameraBob(modelViewMatrix, partialTick);
+                    modelViewMatrix.mul(trueRotationMatrix(camera));
+                    Matrix4f rotationOnlyMatrix = new Matrix4f(modelViewMatrix);
+                    modelViewMatrix.translate(-((float) cameraPos.x), -((float) cameraPos.y), -((float) cameraPos.z));
+                    float dayFraction = clamp01((clientLevel.getSkyDarken(partialTick) - 0.2F) / 0.8F);
+                    float night = LodSettingsConfig.get().nightBrightness();
+                    float day = LodSettingsConfig.get().dayBrightness();
+                    float brightness = night + (day - night) * dayFraction;
+                    RenderSystem.setShaderColor(brightness, brightness, brightness, 1.0F);
+                    int clientRenderDistanceChunks = Minecraft.getInstance().options.getEffectiveRenderDistance();
+                    Matrix4f lodProjectionMatrix = LodFarPlaneProjection.withExtendedFarPlane(projectionMatrix, extendedFarPlaneBlocks(clientRenderDistanceChunks));
+                    Matrix4f viewProjectionMatrix = new Matrix4f(lodProjectionMatrix).mul(modelViewMatrix);
+                    FrustumIntersection frustum = new FrustumIntersection(viewProjectionMatrix);
+                    boolean cullingEnabled = LodSettingsConfig.get().frustumCullingEnabled();
+                    float minBuildHeight = clientLevel.getMinBuildHeight();
+                    float maxBuildHeight = clientLevel.getMaxBuildHeight();
+                    int forcedLevel = LodDebugState.forcedLevel();
+                    List<LodRegionMesh> visibleMeshes = new ArrayList<>();
+                    List<LodRegionMesh> visiblePlaceholderMeshes = new ArrayList<>();
 
-                for (int level : LOD_LEVELS) {
-                    if (forcedLevel == 0 || level == forcedLevel) {
-                        Map<RegionCoord, LodRegionMesh> meshes = meshesByLevel.get(level);
-                        if (meshes != null) {
-                            List<LodRegionMesh> target = level == 0 ? visiblePlaceholderMeshes : visibleMeshes;
-                            if (!cullingEnabled) {
-                                target.addAll(meshes.values());
-                            } else {
-                                for (Entry<RegionCoord, LodRegionMesh> entry : meshes.entrySet()) {
-                                    if (isRegionVisible(frustum, entry.getKey(), minBuildHeight, maxBuildHeight)) {
-                                        target.add(entry.getValue());
+                    for (int level : LOD_LEVELS) {
+                        if (forcedLevel == 0 || level == forcedLevel) {
+                            Map<RegionCoord, LodRegionMesh> meshes = meshesByLevel.get(level);
+                            if (meshes != null) {
+                                List<LodRegionMesh> target = level == 0 ? visiblePlaceholderMeshes : visibleMeshes;
+                                if (!cullingEnabled) {
+                                    target.addAll(meshes.values());
+                                } else {
+                                    for (Entry<RegionCoord, LodRegionMesh> entry : meshes.entrySet()) {
+                                        if (isRegionVisible(frustum, entry.getKey(), minBuildHeight, maxBuildHeight)) {
+                                            target.add(entry.getValue());
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                Vector3f sunDirection = LodOceanPlane.sunDirection(clientLevel.getTimeOfDay(partialTick) * 360.0F);
-                LodParallaxShader.setSunDirection(sunDirection.x, sunDirection.y, sunDirection.z);
-                LodWaterShader.setSunDirection(sunDirection.x, sunDirection.y, sunDirection.z);
-                LodWaterShader.setGameTime(RenderSystem.getShaderGameTime());
-                float savedFogStart = RenderSystem.getShaderFogStart();
-                float savedFogEnd = RenderSystem.getShaderFogEnd();
-                RingConfig ringConfigForFog = Ecstatic.currentRingConfig(clientRenderDistanceChunks);
-                float fogStartBlocks = clientRenderDistanceChunks * 16.0F;
-                float lod4EdgeBlocks = ringConfigForFog.outerBoundary(5) * 16.0F;
-                float fogGapBlocks = (lod4EdgeBlocks - fogStartBlocks) / 0.45F * LodSettingsConfig.get().fogFalloffScale();
-                float fogEndBlocks = fogStartBlocks + fogGapBlocks;
-                float placeholderFogEndBlocks = fogStartBlocks + fogGapBlocks * 0.5F;
-                RenderSystem.setShaderFogStart(fogStartBlocks);
-                RenderSystem.setShaderFogEnd(fogEndBlocks);
-                float fogIntensity = LodSettingsConfig.get().fogIntensity();
-                LodFogShader.setFogIntensity(fogIntensity);
-                LodTreeShader.setFogIntensity(fogIntensity);
-                LodWaterShader.setFogIntensity(fogIntensity);
-                LodFogShader.setSaturation(LodSettingsConfig.get().saturationReduction());
-                boolean cameraUnderwater = camera.getFluidInCamera() == FogType.WATER;
-
-                Object neutralPhaseToken = IrisCompat.beginNeutralPhase();
-                LodRegionMesh.renderWaterCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                LodRegionMesh.renderWaterCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
-                RenderSystem.setShaderFogEnd(fogEndBlocks);
-                IrisCompat.endPhase(neutralPhaseToken);
-
-                if (!cameraUnderwater) {
-                    Object terrainPhaseToken = IrisCompat.beginTerrainPhase();
-                    LodRegionMesh.renderTerrainLitOpaque(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
-                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                    LodRegionMesh.renderTerrainLitOpaque(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    Vector3f sunDirection = LodOceanPlane.sunDirection(clientLevel.getTimeOfDay(partialTick) * 360.0F);
+                    LodParallaxShader.setSunDirection(sunDirection.x, sunDirection.y, sunDirection.z);
+                    LodWaterShader.setSunDirection(sunDirection.x, sunDirection.y, sunDirection.z);
+                    LodWaterShader.setGameTime(RenderSystem.getShaderGameTime());
+                    float savedFogStart = RenderSystem.getShaderFogStart();
+                    float savedFogEnd = RenderSystem.getShaderFogEnd();
+                    RingConfig ringConfigForFog = Ecstatic.currentRingConfig(clientRenderDistanceChunks);
+                    float fogStartBlocks = clientRenderDistanceChunks * 16.0F;
+                    float lod4EdgeBlocks = ringConfigForFog.outerBoundary(5) * 16.0F;
+                    float fogGapBlocks = (lod4EdgeBlocks - fogStartBlocks) / 0.45F * LodSettingsConfig.get().fogFalloffScale();
+                    float fogEndBlocks = fogStartBlocks + fogGapBlocks;
+                    float placeholderFogEndBlocks = fogStartBlocks + fogGapBlocks * 0.5F;
+                    RenderSystem.setShaderFogStart(fogStartBlocks);
                     RenderSystem.setShaderFogEnd(fogEndBlocks);
-                    IrisCompat.endPhase(terrainPhaseToken);
+                    float fogIntensity = LodSettingsConfig.get().fogIntensity();
+                    LodFogShader.setFogIntensity(fogIntensity);
+                    LodTreeShader.setFogIntensity(fogIntensity);
+                    LodWaterShader.setFogIntensity(fogIntensity);
+                    LodFogShader.setSaturation(LodSettingsConfig.get().saturationReduction());
+                    boolean cameraUnderwater = camera.getFluidInCamera() == FogType.WATER;
 
-                    Object terrainFadePhaseToken = IrisCompat.beginTranslucentPhase();
-                    LodRegionMesh.renderTerrainLitFade(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    if (!cameraUnderwater) {
+                        Object terrainPhaseToken = IrisCompat.beginTerrainPhase();
+                        LodRegionMesh.renderTerrainLitOpaque(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                        RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                        LodRegionMesh.renderTerrainLitOpaque(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                        RenderSystem.setShaderFogEnd(fogEndBlocks);
+                        IrisCompat.endPhase(terrainPhaseToken);
+                    }
+
+                    Object neutralPhaseToken = IrisCompat.beginNeutralPhase();
+                    if (!cameraUnderwater) {
+                        LodRegionMesh.renderTerrainCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                        LodRegionMesh.renderTrees(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                        RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                        LodRegionMesh.renderTerrainCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                        RenderSystem.setShaderFogEnd(fogEndBlocks);
+                    }
+
+                    LodRegionMesh.renderWaterCheap(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
                     RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
-                    LodRegionMesh.renderTerrainLitFade(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    LodRegionMesh.renderWaterCheap(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
                     RenderSystem.setShaderFogEnd(fogEndBlocks);
-                    IrisCompat.endPhase(terrainFadePhaseToken);
-                }
+                    IrisCompat.endPhase(neutralPhaseToken);
 
-                int lodCloudRadiusBlocks = ringConfigForFog.outerBoundary(5) * 16;
-                LodCloudExtension.render(rotationOnlyMatrix, lodProjectionMatrix, clientLevel, camera, partialTick, lodCloudRadiusBlocks);
-                RenderSystem.setShaderFogStart(savedFogStart);
-                RenderSystem.setShaderFogEnd(savedFogEnd);
-                //LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    Object translucentPhaseToken = IrisCompat.beginTranslucentPhase();
+                    if (!cameraUnderwater) {
+                        LodRegionMesh.renderTerrainLitFade(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                        RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                        LodRegionMesh.renderTerrainLitFade(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                        RenderSystem.setShaderFogEnd(fogEndBlocks);
+                    }
+                    LodRegionMesh.renderWaterLit(visibleMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(placeholderFogEndBlocks);
+                    LodRegionMesh.renderWaterLit(visiblePlaceholderMeshes, modelViewMatrix, lodProjectionMatrix);
+                    RenderSystem.setShaderFogEnd(fogEndBlocks);
+                    IrisCompat.endPhase(translucentPhaseToken);
+
+                    int lodCloudRadiusBlocks = ringConfigForFog.outerBoundary(5) * 16;
+                    LodCloudExtension.render(rotationOnlyMatrix, lodProjectionMatrix, clientLevel, camera, partialTick, lodCloudRadiusBlocks);
+                    RenderSystem.setShaderFogStart(savedFogStart);
+                    RenderSystem.setShaderFogEnd(savedFogEnd);
+                    //LodStructureIslands.render(modelViewMatrix, lodProjectionMatrix, clientLevel, cameraPos);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                }
             }
         }
     }
