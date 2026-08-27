@@ -23,10 +23,10 @@ import net.minecraft.resources.ResourceLocation;
 
 final class BiomeStyleConfig {
     private static final String WATER_KEY = "WATER";
-    private static final int DEFAULT_WATER_COLOR = 2312061;
+    private static final int DEFAULT_WATER_COLOR = 0x144ab8;
     private static final float DEFAULT_WATER_ALPHA = 0.7F;
     private static final String SNOW_KEY = "SNOW";
-    private static final float DEFAULT_SNOW_HEIGHT_PERCENT = 48.0F;
+    private static final float DEFAULT_SNOW_HEIGHT_PERCENT = 48.0F; // severely deprecated
     private static final String ICE_KEY = "ICE";
     private static final int DEFAULT_ICE_COLOR = 11062752;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -36,7 +36,7 @@ final class BiomeStyleConfig {
     private final Map<TreeStyle.Group, DynamicTexture> foliageTextures = new EnumMap<>(TreeStyle.Group.class);
     private final Map<TreeStyle.Group, ResourceLocation> trunkTextureIds = new EnumMap<>(TreeStyle.Group.class);
     private final Map<TreeStyle.Group, ResourceLocation> foliageTextureIds = new EnumMap<>(TreeStyle.Group.class);
-    private BiomeStyleConfig.WaterEntry water = new BiomeStyleConfig.WaterEntry(2312061, 0.7F);
+    private BiomeStyleConfig.WaterEntry water = new BiomeStyleConfig.WaterEntry(DEFAULT_WATER_COLOR, 0.99F);
     private BiomeStyleConfig.SnowEntry snow = new BiomeStyleConfig.SnowEntry(48.0F);
     private BiomeStyleConfig.IceEntry ice = new BiomeStyleConfig.IceEntry(11062752);
 
