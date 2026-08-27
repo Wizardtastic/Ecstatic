@@ -140,14 +140,14 @@ public final class LodTerrainRenderType extends RenderType {
     }
 
     private static RenderType create(
-        String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit, boolean noTransparency, boolean cull
+            String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit, boolean noTransparency, boolean cull
     ) {
         CompositeStateBuilder builder = CompositeState.builder()
-            .setShaderState(shaderState)
-            .setTransparencyState(noTransparency ? NO_TRANSPARENCY : TRANSLUCENT_TRANSPARENCY)
-            .setDepthTestState(LEQUAL_DEPTH_TEST)
-            .setCullState(cull ? CULL : NO_CULL)
-            .setWriteMaskState(COLOR_DEPTH_WRITE);
+                .setShaderState(shaderState)
+                .setTransparencyState(noTransparency ? NO_TRANSPARENCY : TRANSLUCENT_TRANSPARENCY)
+                .setDepthTestState(LEQUAL_DEPTH_TEST)
+                .setCullState(cull ? CULL : NO_CULL)
+                .setWriteMaskState(noTransparency ? COLOR_DEPTH_WRITE : COLOR_WRITE);
         if (textureState != null) {
             builder.setTextureState(textureState);
         }
