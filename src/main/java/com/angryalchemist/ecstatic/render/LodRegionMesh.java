@@ -220,7 +220,7 @@ public final class LodRegionMesh implements AutoCloseable {
         } else if (override == 2) {
             return false;
         } else {
-            return LodSettingsConfig.get().useLitVertexFormat() ? true : LodSettingsConfig.get().shaderWaterEnabled() && IrisCompat.isShaderPackActive();
+            return LodSettingsConfig.get().shaderWaterEnabled() && IrisCompat.isShaderPackActive();
         }
     }
 
@@ -1549,7 +1549,7 @@ public final class LodRegionMesh implements AutoCloseable {
 
         parts.add(
             new LodRegionMesh.RecordedTreePart(
-                LodTerrainRenderType.TERRAIN_TEXTURED,
+                LodTerrainRenderType.TERRAIN_TEXTURED_OPAQUE_NOCULL,
                 new LodRegionMesh.RecordedPart(sink, RecordedVertexSink.Kind.TEXTURED, DefaultVertexFormat.POSITION_TEX_COLOR)
             )
         );
