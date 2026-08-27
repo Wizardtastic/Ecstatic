@@ -42,7 +42,7 @@ void main() {
 
 
     float boost = fresnel * 0.35 + (sunSpec + moonSpec) * 0.5;
-    float alpha = clamp(vertexColor.a * (1.0 + boost), 0.0, 1.0);
+    float alpha = 1.0 //clamp(vertexColor.a * (1.0 + boost), 0.0, 1.0); //We're turning this off for a bit
 
     vec4 shaded = vec4(color, alpha) * ColorModulator;
     fragColor = mix(shaded, linear_fog(shaded, vertexDistance, FogStart, FogEnd, FogColor), FogIntensity);
