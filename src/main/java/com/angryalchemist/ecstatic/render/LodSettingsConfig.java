@@ -274,13 +274,13 @@ public final class LodSettingsConfig {
 
     static final class Data {
         boolean useLitVertexFormat = true;
-        boolean shaderWaterEnabled = false;
+        boolean shaderWaterEnabled = true;
         boolean frustumCullingEnabled = true;
         boolean oceanPlaneEnabled = true;
         boolean opaqueWaterEnabled = true;
         boolean backfaceCullingEnabled = false;
         boolean debugToolsEnabled = false;
-        float nightBrightness = 0.2F;
+        float nightBrightness = 0.34F;
         float dayBrightness = 0.88F;
         float slopeShadingFloor = 0.64F;
         float nearSlopeShadingFloor = 1.0F;
