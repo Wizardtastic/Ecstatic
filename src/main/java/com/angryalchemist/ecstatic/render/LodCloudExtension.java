@@ -31,6 +31,8 @@ final class LodCloudExtension {
     private static int lastGridX = Integer.MIN_VALUE;
     private static int lastGridZ = Integer.MIN_VALUE;
     private static int lastHalfExtentUnits = -1;
+    private static final float HIGH_ALTITUDE_MARGIN_BLOCKS = 64.0F;
+    private static boolean lastFillCenterGap = false;
 
     private LodCloudExtension() {
     }
@@ -51,12 +53,14 @@ final class LodCloudExtension {
                 int gridX = (int)Math.floor(d2);
                 int gridZ = (int)Math.floor(d4);
                 int requestedHalfUnits = (int)Math.ceil(outerRadiusBlocks / 12.0F);
+                boolean fillCenterGap = cameraPos.y > cloudHeight + HIGH_ALTITUDE_MARGIN_BLOCKS;
                 int halfExtentUnits = (ceilDiv(requestedHalfUnits) + 1) * 32;
-                if (buffer == null || gridX != lastGridX || gridZ != lastGridZ || halfExtentUnits != lastHalfExtentUnits) {
-                    rebuild(gridX, gridZ, halfExtentUnits);
+                if (buffer == null || gridX != lastGridX || gridZ != lastGridZ || halfExtentUnits != lastHalfExtentUnits || fillCenterGap != lastFillCenterGap) {
+                    rebuild(gridX, gridZ, halfExtentUnits, fillCenterGap);
                     lastGridX = gridX;
                     lastGridZ = gridZ;
                     lastHalfExtentUnits = halfExtentUnits;
+                    lastFillCenterGap = fillCenterGap;
                 }
 
                 if (buffer != null) {
@@ -91,7 +95,7 @@ final class LodCloudExtension {
         return (numerator + 32 - 1) / 32;
     }
 
-    private static void rebuild(int gridX, int gridZ, int halfExtentUnits) {
+    private static void rebuild(int gridX, int gridZ, int halfExtentUnits, boolean fillCenterGap) {
         if (buffer != null) {
             buffer.close();
         }
@@ -103,7 +107,7 @@ final class LodCloudExtension {
 
         for (int tileX = -halfExtentUnits; tileX < halfExtentUnits; tileX += 32) {
             for (int tileZ = -halfExtentUnits; tileZ < halfExtentUnits; tileZ += 32) {
-                boolean coveredByVanilla = tileX >= -32 && tileX < 32 && tileZ >= -32 && tileZ < 32;
+                boolean coveredByVanilla = !fillCenterGap && tileX >= -32 && tileX < 32 && tileZ >= -32 && tileZ < 32;
                 if (!coveredByVanilla) {
                     emitTile(builder, tileX, tileZ, uOffset, vOffset);
                 }

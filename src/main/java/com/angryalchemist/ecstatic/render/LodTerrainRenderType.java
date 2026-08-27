@@ -1,6 +1,5 @@
 package com.angryalchemist.ecstatic.render;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -10,22 +9,17 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderStateShard.ShaderStateShard;
-import net.minecraft.client.renderer.RenderStateShard.TextureStateShard;
-import net.minecraft.client.renderer.RenderType.CompositeState;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType.CompositeState.CompositeStateBuilder;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public final class LodTerrainRenderType extends RenderType {
-    public static final RenderType TERRAIN = create("ecstatic_terrain", DefaultVertexFormat.POSITION_COLOR, POSITION_COLOR_SHADER, null);
+    public static final RenderType TERRAIN = create("ecstatic_terrain", DefaultVertexFormat.POSITION_COLOR, POSITION_COLOR_SHADER, null, false, true);
     public static final RenderType TERRAIN_TEXTURED = create(
-        "ecstatic_terrain_textured", DefaultVertexFormat.POSITION_TEX_COLOR, RenderStateShard.POSITION_COLOR_SHADER, BLOCK_SHEET_MIPPED
-    );
+        "ecstatic_terrain_textured", DefaultVertexFormat.POSITION_TEX_COLOR, RenderStateShard.POSITION_COLOR_SHADER, BLOCK_SHEET_MIPPED,
+            false, true);
     static final VertexFormat BLOCK_SAFE = VertexFormat.builder()
             .add("Position", VertexFormatElement.POSITION)
             .add("Color", VertexFormatElement.COLOR)
@@ -35,9 +29,11 @@ public final class LodTerrainRenderType extends RenderType {
             .padding(1)
             .build();
     public static final RenderType TERRAIN_LIT = create(
-        "ecstatic_terrain_lit", BLOCK_SAFE, RENDERTYPE_SOLID_SHADER, buildTextureState(flatWhiteTexture()), true
+            "ecstatic_terrain_lit", BLOCK_SAFE, RENDERTYPE_SOLID_SHADER, buildTextureState(flatWhiteTexture()), true, false, false, false
     );
-    public static final RenderType TERRAIN_LIT_TEXTURED = create("ecstatic_terrain_lit_textured", BLOCK_SAFE, RENDERTYPE_SOLID_SHADER, BLOCK_SHEET_MIPPED, true);
+    public static final RenderType TERRAIN_LIT_TEXTURED = create(
+            "ecstatic_terrain_lit_textured", BLOCK_SAFE, RENDERTYPE_SOLID_SHADER, BLOCK_SHEET_MIPPED, true, false, false, false
+    );
     public static final RenderType TERRAIN_OPAQUE = create(
         "ecstatic_terrain_opaque", DefaultVertexFormat.POSITION_COLOR, POSITION_COLOR_SHADER, null, false, true
     );
@@ -66,13 +62,13 @@ public final class LodTerrainRenderType extends RenderType {
         "ecstatic_terrain_parallax", BLOCK_SAFE, new ShaderStateShard(LodParallaxShader::getOrNull), buildTextureState(flatWhiteTexture()), true
     );
     public static final RenderType TERRAIN_FOG = create(
-        "ecstatic_terrain_fog", DefaultVertexFormat.POSITION_COLOR, new ShaderStateShard(LodFogShader::getPlainOrNull), null
+            "ecstatic_terrain_fog", DefaultVertexFormat.POSITION_COLOR, new ShaderStateShard(LodFogShader::getPlainOrNull), null, false, false, false, false
     );
     public static final RenderType TERRAIN_FOG_TEXTURED = create(
-        "ecstatic_terrain_fog_textured", DefaultVertexFormat.POSITION_TEX_COLOR, new ShaderStateShard(LodFogShader::getTexturedOrNull), BLOCK_SHEET_MIPPED
+            "ecstatic_terrain_fog_textured", DefaultVertexFormat.POSITION_TEX_COLOR, new ShaderStateShard(LodFogShader::getTexturedOrNull), BLOCK_SHEET_MIPPED, false, false, false, false
     );
     public static final RenderType TERRAIN_FOG_OPAQUE = create(
-        "ecstatic_terrain_fog_opaque", DefaultVertexFormat.POSITION_COLOR, new ShaderStateShard(LodFogShader::getPlainOrNull), null, false, true
+                  "ecstatic_terrain_fog_opaque", DefaultVertexFormat.POSITION_COLOR, new ShaderStateShard(LodFogShader::getPlainOrNull), null, false, true
     );
     public static final RenderType TERRAIN_FOG_TEXTURED_OPAQUE = create(
         "ecstatic_terrain_fog_textured_opaque",
@@ -125,16 +121,12 @@ public final class LodTerrainRenderType extends RenderType {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
     }
 
-    static RenderType create(String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState) {
-        return create(name, format, shaderState, textureState, false);
-    }
-
     private static RenderType create(String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit) {
         return create(name, format, shaderState, textureState, lit, false);
     }
 
     private static RenderType create(
-        String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit, boolean opaqueCulled
+            String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit, boolean opaqueCulled
     ) {
         return create(name, format, shaderState, textureState, lit, opaqueCulled, opaqueCulled);
     }
@@ -142,12 +134,18 @@ public final class LodTerrainRenderType extends RenderType {
     private static RenderType create(
             String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit, boolean noTransparency, boolean cull
     ) {
+        return create(name, format, shaderState, textureState, lit, noTransparency, cull, true);
+    }
+
+    private static RenderType create(
+            String name, VertexFormat format, ShaderStateShard shaderState, TextureStateShard textureState, boolean lit, boolean noTransparency, boolean cull, boolean writeDepth
+    ) {
         CompositeStateBuilder builder = CompositeState.builder()
                 .setShaderState(shaderState)
                 .setTransparencyState(noTransparency ? NO_TRANSPARENCY : TRANSLUCENT_TRANSPARENCY)
                 .setDepthTestState(LEQUAL_DEPTH_TEST)
                 .setCullState(cull ? CULL : NO_CULL)
-                .setWriteMaskState(noTransparency ? COLOR_DEPTH_WRITE : COLOR_WRITE);
+                .setWriteMaskState(writeDepth ? COLOR_DEPTH_WRITE : COLOR_WRITE);
         if (textureState != null) {
             builder.setTextureState(textureState);
         }
@@ -168,7 +166,7 @@ public final class LodTerrainRenderType extends RenderType {
     }
 
     static RenderType createTextured(String name, ResourceLocation texture) {
-        return create(name, DefaultVertexFormat.POSITION_TEX_COLOR, RenderStateShard.POSITION_COLOR_SHADER, buildTextureState(texture));
+        return create(name, DefaultVertexFormat.POSITION_TEX_COLOR, RenderStateShard.POSITION_COLOR_SHADER, buildTextureState(texture), false, true);
     }
 
     private static TextureStateShard buildTextureState(ResourceLocation texture) {
