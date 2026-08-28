@@ -32,8 +32,6 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
  * Uses Minecraft's density function used in chunk generation in a vertical march + a binary refine to find the surface height
  * highly version specific, density function literally doesn't exist pre 1.18, keep any divergence contained here
  * returns a SurfaceSample object, contains a height, BiomeRawID, a color, and a contains-trees bool
- *
- * Could potentially be made faster by basing the march off of neighbor hint, low priority
  */
 public final class SurfaceSampler { 
     private static final int MARCH_STEP = 8; 
