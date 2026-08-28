@@ -298,7 +298,7 @@ public final class LodSettingsConfig {
         int lod1SubStepBlocks = 2;
         float lodRenderDistanceScale = 0.9F;
         int workerThreadCount = Math.max(1, Math.round(Runtime.getRuntime().availableProcessors() * 0.7F));
-        float fogFalloffScale = 1.25F;
+        float fogFalloffScale = 0.95F;
         float fogIntensity = 1.0F;
     }
 }
