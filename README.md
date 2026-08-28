@@ -68,7 +68,7 @@ Ecstatic is **compatible with Tectonic** since it doesn't add any new biomes, h
 **Answer:**
 
 > On a new world, it takes about 5 divided by the number of threads you allocated for all the LOD terrain to load in at 100% view distance. Expect about
-> 
+>
 > *   **~1 - 4 minutes** on lower end machines
 > *   **~50 seconds** on mid range machines 
 > *   **~20 seconds** on high end machines
@@ -117,8 +117,8 @@ Made in Canada
 
 Please tell me VIA [the issue tracker at the repo](https://github.com/Wizardtastic/Ecstatic/issues) if there are any features you'd like to see or any bugs you find, any feedback is very appreciated this early on in development. As for now, I'm only doing Forge/Fabric 1.20.1 just for testing purposes, however the future of the mod for the remainder of beta and pre-release is on neoforge 1.21.1.
 
-If you want the source, it is hosted at the source link. As per the liscence you are allowed to modify or remix and distribute the source, however it has to be released under the same CC BY-NC SA 4.0 liscence with attribution!  
-  
+If you want the source, it is hosted at the source link. As per the liscence you are allowed to modify or remix and distribute the source, however it has to be released under the same CC BY-NC SA 4.0 liscence with attribution!
+
 Fully welcome for use in modpacks, I don't consider monetization from curseforge or modrinth packs/remixes to be "Commercial". Forks that add large meaningful improvements overtop of my mod can also be monetized exclusively on Curseforge, Modrinth, or any other similar modding platform that pays its creators through ad revenue. 
 
 While technically not open source, I went with the liscence since it prevents future derivatives of my mod from being paywalled. It otherwise functions similarly to an open source liscence. I'm not a lawyer, if you have legal advice on how I can better liscence my mod, please leave an issue in the repo.
