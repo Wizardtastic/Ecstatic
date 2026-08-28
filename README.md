@@ -92,7 +92,7 @@ And we might add later
 
 Made in Canada
 
-Please tell me VIA https://github.com/alchemyfour/ecstatic-issues/issues if there are any features you'd like to see or any bugs you find, any feedback is very appreciated this early on in development. As for now, I'm only doing Forge/Fabric 1.20.1 just for testing purposes, but if there's a specific version you would like me to do a build for, leave an issue in the issue tracker repo and I'll try to make a build for you!
+Please tell me VIA the issue tracker if there are any features you'd like to see or any bugs you find, any feedback is very appreciated this early on in development. As for now, I'm only doing Forge/Fabric 1.20.1 just for testing purposes, but if there's a specific version you would like me to do a build for, leave an issue in the issue tracker repo and I'll try to make a build for you!
 
 Due to the previous source being a mess, this repo is now the location that all future versions will be built and developed from. You're welcome everybody, I guess it's open source now. Feel free to leave a PR.
 
