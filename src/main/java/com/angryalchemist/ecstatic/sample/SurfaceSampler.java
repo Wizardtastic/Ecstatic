@@ -192,10 +192,16 @@ public final class SurfaceSampler {
     }
 
     private static int findSurfaceHeight(DensityFunction finalDensity, LevelHeightAccessor heightAccessor, int blockX, int blockZ, int expectedHeightHint) {
-        int top = heightAccessor.getMaxBuildHeight() - 1;
+
         int bottom = heightAccessor.getMinBuildHeight();
-        int prevY = top;
-        int y = top - MARCH_STEP;
+        int prevY;
+        int y;
+        if (expectedHeightHint != NO_HEIGHT_HINT) {
+            prevY = expectedHeightHint + FLOATING_OUTLIER_THRESHOLD_BLOCKS + MARCH_STEP + 1; // Base march height off of height hint, assuming it's not nothing
+        } else {
+            prevY = heightAccessor.getMaxBuildHeight() - 1;
+        }
+        y = prevY - MARCH_STEP;
         int fallback = bottom;
 
         while (y >= bottom) {
