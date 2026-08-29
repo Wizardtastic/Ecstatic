@@ -6,13 +6,9 @@ Ecstatic is an LOD mod designed to be as efficient and as close to vanilla perfo
 
  
 
-CC BY-NC SA 4.0 Liscence, source at [https://github.com/Wizardtastic/Ecstatic](https://github.com/Wizardtastic/Ecstatic)
+CC BY NC SA 4.0 Liscence, source at [https://github.com/Wizardtastic/Ecstatic](https://github.com/Wizardtastic/Ecstatic)
 
- 
-
-***
-
-Small warning! The mod has some weird bugs at the moment. LODs might not look perfect or take a while to generate
+To get the best possible experience, I would highly suggest turning your vanilla render distance up to 24 from the default 12, LODs really don't look that great up close
 
 ***
 
@@ -22,7 +18,11 @@ Instead of actually loading faraway chunks like Distant Horizons (Which is incre
 
 ## **Shaders**
 
-At this stage in development, shaders are strongly advised against. Adding shaders is a much bigger project given the way iris exposes its phase system and also the sheer volume of edge cases. Using shaders will cause LOD terrain to not render. There is a toggle to disable this in the "Debug" settings called "Lit vertex format". **You will experience bugs, please do not report them.**   
+At this stage in development, shaders are strongly advised against. Adding shaders is a much bigger project given the way iris works and also the sheer volume of edge cases. 
+
+Shaders will attempt to run, however view bobbing, LOD fading, trees, and anything to do with transparency will be broken.
+
+ **You will experience bugs, please do not report them.**   
 **Shader support is currently in the works**
 
 ## **Q and A**
@@ -55,9 +55,7 @@ Ecstatic's render distance by default (100% render distance) is **144 chunks** a
 
 **Answer:**
 
-Ecstatic is **compatible with Tectonic** since it doesn't add any new biomes, however performance will be significantly worse, and potentially game breaking. If you have non performance related issues with tectonic, feel free to leave an issue in the issue tracker.
-
- **Terralith does not have full compatability**. Biomes may look the wrong color or have the wrong trees at a distance, this goes for all mods introducing new biomes.
+Ecstatic is **fully compatible with Tectonic** since it doesn't add any new biomes. **Terralith does not have full compatability**. Biomes may look the wrong color or have the wrong trees at a distance, this goes for all mods introducing new biomes.
 
 ***
 
@@ -68,11 +66,13 @@ Ecstatic is **compatible with Tectonic** since it doesn't add any new biomes, h
 **Answer:**
 
 > On a new world, it takes about 5 divided by the number of threads you allocated for all the LOD terrain to load in at 100% view distance. Expect about
->
+> 
 > *   **~1 - 4 minutes** on lower end machines
 > *   **~50 seconds** on mid range machines 
 > *   **~20 seconds** on high end machines
 > *   **~2 seconds** on the latest AMD threadripper
+> 
+> Generation times are CPU bound
 
 ***
 
@@ -80,7 +80,7 @@ Ecstatic is **compatible with Tectonic** since it doesn't add any new biomes, h
 
 Can you see faraway structures with Ecstatic?
 
-**Yes**, faraway structures should be shown in LOD terrain 
+**Yes**, faraway structures should be shown in LOD terrain (However this feature is being retired for a bit in 1.4.0 since it needs some work)
 
 ***
 
@@ -90,7 +90,7 @@ How smooth is Ecstatic with elytra?
 
 **Answer:**
 
-> Medium smooth, gaps in terrain might happen/frame drops so beware!
+> Medium smooth, LODs may struggle to keep up based on your machine
 
 ***
 
@@ -98,12 +98,12 @@ How smooth is Ecstatic with elytra?
 
 ## **What's next?**
 
-At the moment the mod is still in beta. For full release we're working on
+At the moment the mod is still in beta. For full release we are working on
 
 *   Full shader support through Iris/Oculus
 *   Server support
-*   Incresed render distance VIA flat Terrain (Up to 1k chunks potentially)
-*   Rendering player builds
+*   Incresed render distance VIA flat Terrain (Up to 1k chunks potentially, basically just doing what farplanetwo does as another LOD)
+*   Zooming on terrain promotes it to higher quality terrain
 *   French translation 
 *   Better tree system
 
@@ -115,10 +115,8 @@ And we might add later
 
 Made in Canada
 
-Please tell me VIA [the issue tracker at the repo](https://github.com/Wizardtastic/Ecstatic/issues) if there are any features you'd like to see or any bugs you find, any feedback is very appreciated this early on in development. As for now, I'm only doing Forge/Fabric 1.20.1 just for testing purposes, however the future of the mod for the remainder of beta and pre-release is on neoforge 1.21.1.
+Please tell me VIA [the issue tracker at the repo](https://github.com/Wizardtastic/Ecstatic/issues) if there are any features you'd like to see or any bugs you find, any feedback is very appreciated this early on in development.
 
-If you want the source, it is hosted at the source link. As per the liscence you are allowed to modify or remix and distribute the source, however it has to be released under the same CC BY-NC SA 4.0 liscence with attribution!
-
-Fully welcome for use in modpacks, I don't consider monetization from curseforge or modrinth packs/remixes to be "Commercial". Forks that add large meaningful improvements overtop of my mod can also be monetized exclusively on Curseforge, Modrinth, or any other similar modding platform that pays its creators through ad revenue. 
-
-While technically not open source, I went with the liscence since it prevents future derivatives of my mod from being paywalled. It otherwise functions similarly to an open source liscence. I'm not a lawyer, if you have legal advice on how I can better liscence my mod, please leave an issue in the repo.
+If you want the source, it is hosted at the source link. As per the liscence you are allowed to modify or remix and distribute the source, however it has to be released under the same CC BY-NC SA 4.0 liscence with attribution!  
+  
+Fully welcome for use in modpacks, I don't consider monetization from curseforge or modrinth packs/remixes to be "Commercial". Forks that add large meaningful improvements overtop of my mod can also be monetized exclusively on Curseforge, Modrinth, or any other similar modding platform that pays its creators through ad revenue.
