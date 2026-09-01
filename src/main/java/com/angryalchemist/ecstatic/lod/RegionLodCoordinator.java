@@ -395,9 +395,9 @@ public synchronized void shutdown() {
 
         for (RegionLodCoordinator.Worker worker : this.workers) {
             try {
-                worker.thread.join(TimeUnit.SECONDS.toMillis(10L));
+                worker.thread.join();
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            Thread.currentThread().interrupt();
             }
         }
 

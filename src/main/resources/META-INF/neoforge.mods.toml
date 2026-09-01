@@ -4,7 +4,7 @@ license = "CC-BY-NC-SA-4.0" # Review your options at https://choosealicense.com/
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
 [[mods]] #mandatory
 modId = "ecstatic" #mandatory
-version = "1.3.0" #mandatory
+version = "1.4.1" #mandatory
 displayName = "Ecstatic" #mandatory
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional (see https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/)
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional (displayed in the mod UI)
