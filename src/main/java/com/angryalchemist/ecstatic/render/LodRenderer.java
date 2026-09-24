@@ -47,6 +47,7 @@ public final class LodRenderer {
     private static final int ALPHA_FADE_WIDTH_CHUNKS = 12;
     static final int EDGE_SAFETY_MARGIN_CHUNKS = 4;
     private static final int FADE_REFRESH_THRESHOLD_CHUNKS = 2;
+    private static final float STOP_RENDERING_Y = 35.0;
     private static final long FADE_REFRESH_TIME_BUDGET_NANOS = TimeUnit.MICROSECONDS.toNanos(3000L);
     private static final long COORDINATOR_BUILD_TIME_BUDGET_NANOS = TimeUnit.MICROSECONDS.toNanos(4500L);
     private static final int SHADER_ACTIVE_BUDGET_DIVISOR = 3;
@@ -106,7 +107,7 @@ public final class LodRenderer {
                 drainPendingCoordinatorBuilds();
                 maybeRefreshFade(cameraPos, biomeRegistry);
                 drainPendingFadeBuilds();
-                boolean skipRendering = cameraPos.y < 35.0; // disables rendering if below 35
+                boolean skipRendering = cameraPos.y < STOP_RENDERING_Y; // disables rendering if below 35
                 // should be 100% safe in vanilla, players literally couldn't see the horizon from below 35 even if they tried
                 // coincidentally (not) also fixes a bug where being below bedrock would expose the bottoms of columns
                 // to my knowledge, there aren't any mods that this would break, although it could potentially break world gen
