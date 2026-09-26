@@ -102,10 +102,12 @@ At the moment the mod is still in beta. For full release we are working on
 
 *   Full shader support through Iris/Oculus
 *   Server support
+*   Sable & Create Aeronautics integration 
 *   Incresed render distance VIA flat Terrain (Up to 1k chunks potentially, basically just doing what farplanetwo does as another LOD)
 *   Zooming on terrain promotes it to higher quality terrain
 *   French translation 
 *   Better tree system
+*   Ports to other versions 
 
 And we might add later
 
